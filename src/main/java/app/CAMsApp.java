@@ -15,24 +15,25 @@ import java.util.Scanner;
 
 public class CAMsApp {
     private static User user;
+    private static final String keyFile = "data/keys.csv";
+    private static final String userFile = "data/users.csv";
     private static final String defaultKey = InputHandler.sha256("password");
     public static void main(String[] args) throws IOException, CsvException {
-        String keyFile = "data/key.csv", userFile = "data/users.csv",
-               id, key;
-        Scanner sc = new Scanner(System.in);
-
-
         System.out.println("Starting CAMs...");
-        FileReader keyStream = InputHandler.getFile(keyFile);
+
+        // login page
+        Scanner sc = new Scanner(System.in);
+        String id, key;
         while (true) {
             System.out.print("Enter userID: ");
             id = sc.nextLine();
             System.out.print("Enter password: ");
             key = InputHandler.sha256(sc.nextLine());
+            FileReader keyStream = InputHandler.getFile(keyFile);
             if (userLogin(keyStream, id, key))
                 break;
             else
-                System.out.println("Invalid userID or password.");
+                System.out.println("Invalid credentials.");
         }
         System.out.println("Logged in.");
         System.out.println();
@@ -50,7 +51,6 @@ public class CAMsApp {
 
         user.UserApp();
     }
-
     private static boolean userLogin(FileReader keyReader, String id, String key) throws IOException, CsvException {
         CSVReader csvReader = new CSVReaderBuilder(keyReader)
                               .withSkipLines(1).build();
