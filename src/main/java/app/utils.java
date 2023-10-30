@@ -11,7 +11,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.List;
 
-class utils {
+class Utils {
     private static final String defaultKey = sha256("password");
     static String sha256(String s) {
         return DigestUtils.sha256Hex(s);

@@ -9,19 +9,19 @@ import java.util.Scanner;
 public class CAMsApp {
     private static User user;
     public static void main(String[] args) {
-        System.out.println("Starting CAMs...");
         String FILEPATH = "src/main/resources/",
                keyFile = "key.csv",
                userFile = "users.csv",
                id, key;
         Scanner sc = new Scanner(System.in);
 
+        System.out.println("Starting CAMs...");
         while (true) {
             System.out.print("Enter userID: ");
             id = sc.nextLine();
             System.out.print("Enter password: ");
-            key = utils.sha256(sc.nextLine());
-            if (utils.userLogin(FILEPATH + keyFile, id, key))
+            key = Utils.sha256(sc.nextLine());
+            if (Utils.userLogin(FILEPATH + keyFile, id, key))
                 break;
             else
                 System.out.println("Invalid userID or password.");
@@ -30,7 +30,7 @@ public class CAMsApp {
         System.out.println();
 
         // initialise users list
-        UserList userList = utils.readUsers(FILEPATH + userFile);
+        UserList userList = Utils.readUsers(FILEPATH + userFile);
         String[] userInfo;
         if (userList.hasStudent(id)) {
             userInfo = userList.getStudent(id);
