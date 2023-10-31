@@ -1,5 +1,9 @@
 package user;
 
+import com.opencsv.exceptions.CsvException;
+import com.opencsv.exceptions.CsvValidationException;
+
+import java.io.IOException;
 import java.util.Scanner;
 
 public class Student extends User {
@@ -18,11 +22,11 @@ public class Student extends User {
     }
 
     @Override
-    public void UserApp() {
-        Scanner sc = new Scanner(System.in);
-
+    public void UserApp() throws IOException, CsvException {
         showMenu();
 
+        Scanner sc = new Scanner(System.in);
+        resetPW();
 
     }
 }
