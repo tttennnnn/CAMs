@@ -27,7 +27,7 @@ public class AppUtil {
         return new CSVReaderBuilder(getFileReader(fileName))
             .withSkipLines(n).build();
     }
-    public static void overwriteCSV(String fileName, List<String[]> newData) throws IOException{
+    public static void overwriteCSV(String fileName, List<String[]> newData) throws IOException {
         CSVWriter csvWriter = new CSVWriter(getFileWriter(fileName),
                                             CSVWriter.DEFAULT_SEPARATOR,
                                             CSVWriter.NO_QUOTE_CHARACTER,
