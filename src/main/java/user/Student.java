@@ -44,7 +44,7 @@ public class Student extends User {
         while (true) {
             String input;
             do {
-                System.out.print(getEmail() + "$ ");
+                System.out.print("["+getEmail()+"]" + "$ ");
             } while ((input = sc.nextLine()).isEmpty());
 
             try {
@@ -94,10 +94,10 @@ public class Student extends User {
                 throw new IllegalCommandException();
         } else {
             if (args.length < 2)
-                throw new IllegalCommandException();
+                throw new IllegalCommandException("Expected more arguments for command: " + args[0]);
             if (!commands.get(args[0]).containsKey(args[1]))
                 throw new IllegalCommandException("Invalid argument: " + args[1] + " for command: " + args[0]);
-            if (args.length == 2 + commands.get(args[0]).get(args[1]))
+            if (args.length != 2 + commands.get(args[0]).get(args[1]))
                 throw new IllegalCommandException();
         }
 
