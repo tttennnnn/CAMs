@@ -79,7 +79,8 @@ public class Student extends User {
     }
     @Override
     String[] validateCommand(String input) throws IllegalCommandException {
-        String[] args = input.split(" ");
+        // split by whitespace
+        String[] args = input.split("\\s+");
 
         for (String arg : args) {
             if (arg.isBlank())
@@ -91,14 +92,14 @@ public class Student extends User {
 
         if (args[0].equals("help") || args[0].equals("profile")) {
             if (args.length != 1)
-                throw new IllegalCommandException();
+                throw new IllegalCommandException("Expected 0 argument for: " + args[0]);
         } else {
             if (args.length < 2)
-                throw new IllegalCommandException("Expected more arguments for command: " + args[0]);
+                throw new IllegalCommandException("Expected more arguments for: " + args[0]);
             if (!commands.get(args[0]).containsKey(args[1]))
-                throw new IllegalCommandException("Invalid argument: " + args[1] + " for command: " + args[0]);
+                throw new IllegalCommandException("Invalid option: " + args[1]);
             if (args.length != 2 + commands.get(args[0]).get(args[1]))
-                throw new IllegalCommandException();
+                throw new IllegalCommandException("Expected " + commands.get(args[0]).get(args[1]) + " arguments for: " + args[0] + " " + args[1]);
         }
 
         return args;

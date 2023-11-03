@@ -54,6 +54,7 @@ public abstract class User {
             }
         }
         AppUtil.overwriteCSV(keyFile, lines);
+        System.out.println("Password changed.");
     }
     void showPasswordPolicy() {
         System.out.println("Password must:");
