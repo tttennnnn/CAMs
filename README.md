@@ -5,3 +5,4 @@ SC2002 Assignment
 - resource files (./data/*) should be put in the same dir as jar
 - consider StringBuilder with '\r', "\033[F" to update terminal output
 - consider console.readPassword()
+- manage exception handling

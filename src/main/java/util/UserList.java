@@ -1,9 +1,9 @@
-package utils;
+package util;
 
 import java.util.HashMap;
 
 public class UserList {
-    private HashMap<String, String[]> students, staffs;
+    private final HashMap<String, String[]> students, staffs;
     public UserList() {
         students = new HashMap<>();
         staffs = new HashMap<>();
