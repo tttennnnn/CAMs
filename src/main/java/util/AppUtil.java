@@ -37,10 +37,8 @@ public class AppUtil {
         csvWriter.flush();
         csvWriter.close();
     }
-    public static void printHeader() {
-        String dash = String.join("", Collections.nCopies(30, "-"));
-        System.out.println(dash + "CAMs" + dash);
-        System.out.println("Usage: \"help\" for help message");
-        System.out.println(dash + "----" + dash);
+    public static void printSectionLine() {
+        String sectionLine = String.join("", Collections.nCopies(30, "="));
+        System.out.println(sectionLine);
     }
 }

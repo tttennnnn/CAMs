@@ -1,27 +1,27 @@
 package app;
 
 import com.opencsv.CSVReader;
-import com.opencsv.CSVReaderBuilder;
 import com.opencsv.exceptions.CsvException;
-import user.Staff;
-import user.Student;
-import user.User;
+import userpage.staff.StaffMainPage;
+import userpage.student.StudentMainPage;
+import userpage.UserMainPage;
 import util.AppUtil;
 import util.UserList;
+import util.exceptions.PageTerminatedException;
 
 import java.io.*;
 import java.util.List;
 import java.util.Scanner;
 
 public class CAMsApp {
-    private static User user;
+    private static UserMainPage userMainPage;
     private static final String KEYFILE = "data/keys.csv";
     private static final String USERFILE = "data/users.csv";
     private static final String DEFAULTKEY = AppUtil.sha256("password");
     public static String getKeyFileName() { return KEYFILE; }
 
     public static void main(String[] args) throws IOException, CsvException {
-        System.out.println("Starting CAMs...");
+        System.out.println("========== CAMs Login Page ==========");
 
         // login page
         Scanner sc = new Scanner(System.in);
@@ -44,14 +44,19 @@ public class CAMsApp {
         String[] userInfo;
         if (userList.hasStudent(id)) {
             userInfo = userList.getStudent(id);
-            user = new Student(id, userInfo[0], userInfo[1], userInfo[2]);
+            userMainPage = new StudentMainPage(id, userInfo[0], userInfo[1], userInfo[2]);
         } else {
             userInfo = userList.getStaff(id);
-            user = new Staff(id, userInfo[0], userInfo[1], userInfo[2]);
+            userMainPage = new StaffMainPage(id, userInfo[0], userInfo[1], userInfo[2]);
         }
 
         // to main page
-        user.UserApp();
+        try {
+            userMainPage.runPage();
+        } catch (PageTerminatedException e) {
+            main(args);
+        }
+
     }
     private static boolean userLogin(String id, String key) throws IOException, CsvException {
         CSVReader csvReader = AppUtil.getCSVReader(KEYFILE, 1);
