@@ -1,15 +1,18 @@
 package userpage;
 
+import camp.Faculty;
+
 public class User {
-    private final String userID, email, name, faculty;
-    User(String userID, String email, String name, String faculty) {
+    private final String userID, email, name;
+    private final Faculty faculty;
+    public User(String userID, String email, String name, Faculty faculty) {
         this.userID = userID;
         this.email = email;
         this.name = name;
         this.faculty = faculty;
     }
-    protected String getUserID() { return userID; }
-    protected String getEmail() { return email; }
-    protected String getName() { return name; }
-    protected String getFaculty() { return faculty; }
+    public String getUserID() { return userID; }
+    public String getEmail() { return email; }
+    public String getName() { return name; }
+    public Faculty getFaculty() { return faculty; }
 }

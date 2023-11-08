@@ -1,9 +1,9 @@
 package camp;
 
 public enum Location {
-    A,
-    B,
-    C,
-    D,
-    E
+    LocationA,
+    LocationB,
+    LocationC,
+    LocationD,
+    LocationE
 }

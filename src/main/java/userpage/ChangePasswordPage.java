@@ -1,6 +1,7 @@
 package userpage;
 
 import app.CAMsApp;
+import camp.Faculty;
 import com.opencsv.CSVReader;
 import com.opencsv.exceptions.CsvException;
 import util.AppUtil;
@@ -12,7 +13,7 @@ import java.util.List;
 import java.util.Scanner;
 
 public class ChangePasswordPage extends User implements ApplicationPage {
-    public ChangePasswordPage(String userID, String email, String name, String faculty) {
+    public ChangePasswordPage(String userID, String email, String name, Faculty faculty) {
         super(userID, email, name, faculty);
     }
 

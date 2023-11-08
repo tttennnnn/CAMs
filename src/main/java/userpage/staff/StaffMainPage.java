@@ -1,9 +1,10 @@
 package userpage.staff;
 
+import camp.Faculty;
 import userpage.UserMainPage;
 
 public class StaffMainPage extends UserMainPage {
-    public StaffMainPage(String userID, String email, String name, String faculty) {
+    public StaffMainPage(String userID, String email, String name, Faculty faculty) {
         super(userID, email, name, faculty);
     }
 
@@ -17,7 +18,7 @@ public class StaffMainPage extends UserMainPage {
         System.out.println("Usage:");
         System.out.println("\t1. View usage");
         System.out.println("\t2. View profile");
-        System.out.println("\t3. To Camps menu");
+        System.out.println("\t3. To Camp menu");
         System.out.println("\t4. To Enquiry menu");
         System.out.println("\t5. Change password");
         System.out.println("\t6. Log out");

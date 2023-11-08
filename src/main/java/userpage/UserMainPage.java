@@ -1,5 +1,6 @@
 package userpage;
 
+import camp.Faculty;
 import com.opencsv.exceptions.CsvException;
 import util.AppUtil;
 import util.exceptions.PageTerminatedException;
@@ -7,11 +8,11 @@ import util.exceptions.PageTerminatedException;
 import java.io.IOException;
 
 public abstract class UserMainPage extends User implements ApplicationPage {
-    // abstract members
+    // abstract
     protected abstract void showProfile();
 
-    // class members
-    public UserMainPage(String userID, String email, String name, String faculty) {
+    // non-abstract
+    public UserMainPage(String userID, String email, String name, Faculty faculty) {
         super(userID, email, name, faculty);
     }
 
@@ -23,7 +24,7 @@ public abstract class UserMainPage extends User implements ApplicationPage {
         showUsage();
     }
 
-    protected void changePassword() throws PageTerminatedException, IOException, CsvException {
+    protected void openChangePasswordPage() throws PageTerminatedException, IOException, CsvException {
         ChangePasswordPage changePasswordPage = new ChangePasswordPage(getUserID(), getEmail(), getName(), getFaculty());
         changePasswordPage.runPage();
     }
