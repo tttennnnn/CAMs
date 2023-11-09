@@ -1,5 +1,7 @@
 package camp;
 
+import util.CampList;
+
 import java.time.LocalDate;
 
 public class Camp {
@@ -27,30 +29,47 @@ public class Camp {
     }
     public String getName() { return name; }
     public String getDescription() { return description; }
+    public CampSlot getCampSlot() { return campSlot; }
     public CampDates getCampDates() { return dates; }
     public boolean getVisibility() { return visibility; }
     public Faculty getFaculty() { return faculty; }
     public Location getLocation() { return location; }
 
     public int getTotalVacancy() {
-        return campSlot.getMaxTotal() - campSlot.getOccupiedTotal();
+        return campSlot.getMaxTotal() - campSlot.getStudents().size() - campSlot.getCommittees().size();
     }
     public int getCommitteeVacancy() {
-        return campSlot.getMaxCommittee() - campSlot.getOccupiedCommittee();
+        return campSlot.getMaxCommittee() - campSlot.getCommittees().size();
     }
     public String getTotalSlotAsString() {
-        return campSlot.getOccupiedTotal() + "/" + campSlot.getMaxTotal();
+        return (campSlot.getStudents().size() + campSlot.getCommittees().size()) + "/" + campSlot.getMaxTotal();
     }
     public String getCommitteeSlotAsString() {
-        return campSlot.getOccupiedCommittee() + "/" + campSlot.getMaxCommittee();
+        return campSlot.getCommittees().size() + "/" + campSlot.getMaxCommittee();
     }
     public String getStatus(String key) {
-        if (campSlot.hasStudent(key))
+        if (campSlot.getStudents().contains(key))
             return "Attendee";
-        if (campSlot.hasCommittee(key))
+        if (campSlot.getCommittees().contains(key))
             return "Committee";
         return "-";
     }
+    public boolean hasTimeClash(Camp anotherCamp) {
+        LocalDate thisStarts = dates.getStartDate();
+        LocalDate thisEnds = dates.getEndDate();
+        LocalDate anotherStarts = anotherCamp.getCampDates().getStartDate();
+        LocalDate anotherEnds = anotherCamp.getCampDates().getEndDate();
+        if (thisStarts.isBefore(anotherStarts) && !thisEnds.isBefore(anotherStarts))
+            return true;
+        if (thisStarts.isEqual(anotherStarts))
+            return true;
+        return !thisStarts.isAfter(anotherEnds);
+    }
+    public boolean hasWithdrawn(String ID) { return campSlot.getWithdrawns().contains(ID); }
+    public void addStudent(String student) {
+        campSlot.getStudents().add(student);
+    }
+    public void addCommittee(String committee) { campSlot.getCommittees().add(committee); }
 
     public void setCampSlot(CampSlot campSlot) {
         this.campSlot = campSlot;

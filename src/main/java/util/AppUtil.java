@@ -93,9 +93,11 @@ public class AppUtil {
 
         // read from slots.csv
         for (String[] slotLine : slotLines) {
-            CampSlot campSlot = new CampSlot(Integer.parseInt(slotLine[1]),
+            CampSlot campSlot = new CampSlot(
+                Integer.parseInt(slotLine[1]),
                 CampSlot.getAttendeeListAsArrayList(slotLine[2]),
-                CampSlot.getAttendeeListAsArrayList(slotLine[3])
+                CampSlot.getAttendeeListAsArrayList(slotLine[3]),
+                CampSlot.getAttendeeListAsArrayList(slotLine[4])
             );
             campList.getCamp(slotLine[0]).setCampSlot(campSlot);
         }

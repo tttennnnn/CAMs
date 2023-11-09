@@ -1,6 +1,6 @@
 Name,TotalSlot,Students,Committees,Withdrawn
 CampA,30,Std2;Std3;Std4;Std5,Std1,
 CampB,15,Std6;Std7;Std8;Std9;Std10;Std11;Std12;Std13;Std14;Std15;Std16;Std17;Std18,Std19;Std20,
-CampC,20,,
-CampD,20,,Std1
-CampE,30,,
+CampC,20,,,
+CampD,20,,,Std1
+CampE,30,,,

@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 public class CampSlot {
-    private ArrayList<String> students, committees;
+    private ArrayList<String> students, committees, withdrawns;
     private int maxTotal, maxCommittee = 10;
 
     public CampSlot(int maxTotal) {
@@ -13,18 +13,17 @@ public class CampSlot {
         this.maxTotal = maxTotal;
     }
 
-    public CampSlot(int maxTotal, ArrayList<String> students, ArrayList<String> committees) {
+    public CampSlot(int maxTotal, ArrayList<String> students, ArrayList<String> committees, ArrayList<String> withdrawns) {
         this.students = students;
         this.committees = committees;
         this.maxTotal = maxTotal;
+        this.withdrawns = withdrawns;
     }
-
-    public int getOccupiedTotal() { return students.size() + committees.size(); }
-    public int getOccupiedCommittee() { return committees.size(); }
+    public ArrayList<String> getStudents() { return students; }
+    public ArrayList<String> getCommittees() { return committees; }
+    public ArrayList<String> getWithdrawns() { return withdrawns; }
     public int getMaxTotal() { return maxTotal; }
     public int getMaxCommittee() { return maxCommittee; }
-    public boolean hasStudent(String key) { return students.contains(key); }
-    public boolean hasCommittee(String key) { return committees.contains(key); }
 
     public static String getAttendeeListAsString(ArrayList<String> attendeeList) {
         return String.join(";", attendeeList);

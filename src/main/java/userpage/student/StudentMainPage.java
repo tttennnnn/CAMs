@@ -60,8 +60,9 @@ public class StudentMainPage extends UserMainPage {
         System.out.println("\t1. View usage");
         System.out.println("\t2. View profile");
         System.out.println("\t3. To Camp page");
-        System.out.println("\t4. Change password");
-        System.out.println("\t5. Log out");
+        System.out.println("\t4. To Enquiry page");
+        System.out.println("\t5. Change password");
+        System.out.println("\t6. Log out");
     }
 
     @Override
