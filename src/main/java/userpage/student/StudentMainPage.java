@@ -47,6 +47,12 @@ public class StudentMainPage extends UserMainPage {
                     }
                     break;
                 case ("5"):
+                    try {
+                        openEnquiryPage();
+                    } catch (PageTerminatedException e) {
+                        runPage();
+                    }
+                case ("6"):
                     throw new PageTerminatedException();
                 default:
                     System.out.println("Invalid input.");
@@ -91,5 +97,8 @@ public class StudentMainPage extends UserMainPage {
     private void openCampPage() throws PageTerminatedException, IOException, CsvException {
         StudentCampPage campPage = new StudentCampPage(getUserID(), getEmail(), getName(), getFaculty());
         campPage.runPage();
+    }
+    private void openEnquiryPage() throws PageTerminatedException {
+
     }
 }

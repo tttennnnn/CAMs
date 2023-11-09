@@ -55,7 +55,11 @@ public class StudentCampPage extends User implements ApplicationPage {
                     }
                     break;
                 case ("5"):
-                    withdraw();
+                    try {
+                        withdraw();
+                    } catch (InvalidCampException e) {
+                        System.out.println(e.getMessage());
+                    }
                     break;
                 case ("6"):
                     throw new PageTerminatedException();
@@ -196,7 +200,7 @@ public class StudentCampPage extends User implements ApplicationPage {
         }
 
         // update csv
-        CSVReader campSlotReader = AppUtil.getCSVReader(CAMsApp.getCampSlotFile(), 1);
+        CSVReader campSlotReader = AppUtil.getCSVReader(CAMsApp.getCampSlotFile());
         List<String[]> slotLines = campSlotReader.readAll();
         campSlotReader.close();
         for (int row = 1; row < slotLines.size(); row++) {
@@ -211,8 +215,37 @@ public class StudentCampPage extends User implements ApplicationPage {
         System.out.println("Registered as " + role);
     }
 
-    private void withdraw() {
+    private void withdraw() throws InvalidCampException, IOException, CsvException {
+        System.out.print("Enter camp name: ");
+        Scanner sc = new Scanner(System.in);
+        String campName = sc.nextLine();
 
+        CampList campList = getRegisteredCampList();
+        if (!campList.hasCamp(campName))
+            throw new InvalidCampException();
+
+        Camp camp = campList.getCamp(campName);
+        if (camp.getCampSlot().getStudents().contains(getUserID()))
+            camp.getCampSlot().getStudents().remove(getUserID());
+        else
+            camp.getCampSlot().getCommittees().remove(getUserID());
+
+        // add to withdrawal list
+        camp.getCampSlot().getWithdrawns().add(getUserID());
+
+        CSVReader campSlotReader = AppUtil.getCSVReader(CAMsApp.getCampSlotFile());
+        List<String[]> slotLines = campSlotReader.readAll();
+        campSlotReader.close();
+        for (int row = 1; row < slotLines.size(); row++) {
+            if (slotLines.get(row)[0].equals(campName)) {
+                slotLines.get(row)[2] = CampSlot.getAttendeeListAsString(camp.getCampSlot().getStudents());
+                slotLines.get(row)[3] = CampSlot.getAttendeeListAsString(camp.getCampSlot().getCommittees());
+                slotLines.get(row)[4] = CampSlot.getAttendeeListAsString(camp.getCampSlot().getWithdrawns());
+                break;
+            }
+        }
+        AppUtil.overwriteCSV(CAMsApp.getCampSlotFile(), slotLines);
+        System.out.println("Withdrawn from " + camp.getName());
     }
 
     private CampList getVisibleCampList() throws IOException, CsvException {

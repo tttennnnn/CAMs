@@ -1,0 +1,6 @@
+Name,StaffID,Description,Visibility,Faculty,Location
+CampA,Staff1,-----,T,EEE,LocationA
+CampB,Staff1,-----,T,NTU,LocationB
+CampC,Staff3,-----,F,EEE,LocationC
+CampD,Staff2,-----,T,EEE,LocationD
+CampE,Staff2,-----,F,EEE,LocationE
