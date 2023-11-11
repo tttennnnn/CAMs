@@ -6,3 +6,4 @@
 - consider console.readPassword()
 - manage exceptions
 - each user's userID must be unique
+- (next) read suggestions and enquiries from csv
