@@ -77,7 +77,7 @@ public class ChangePasswordPage extends User implements ApplicationPage {
             return;
         }
 
-        String keyFile = CAMsApp.getKeyFileName();
+        String keyFile = CAMsApp.getKeyFile();
         CSVReader csvReader = AppUtil.getCSVReader(keyFile);
 
         List<String[]> lines = csvReader.readAll();

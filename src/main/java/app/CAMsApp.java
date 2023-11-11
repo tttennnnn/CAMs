@@ -18,15 +18,19 @@ public class CAMsApp {
     private static final String KEY_FILE = "data/keys.csv";
     private static final String USER_FILE = "data/users.csv";
     private static final String CAMP_INFO_FILE = "data/camp/camps.csv";
-    private static final String CAMP_DATE_FILE = "data/camp/dates.csv";
     private static final String CAMP_SLOT_FILE = "data/camp/slots.csv";
+    private static final String CAMP_DATE_FILE = "data/camp/dates.csv";
+    private static final String CAMP_ENQUIRY_FILE = "data/camp/enquiries.csv";
+    private static final String CAMP_SUGGESTION_FILE = "data/camp/suggestions.csv";
     private static final String DEFAULTKEY = AppUtil.sha256("password");
 
     public static String getUserFile() { return USER_FILE; }
-    public static String getKeyFileName() { return KEY_FILE; }
+    public static String getKeyFile() { return KEY_FILE; }
     public static String getCampInfoFile() { return CAMP_INFO_FILE; }
     public static String getCampDateFile() { return CAMP_DATE_FILE; }
     public static String getCampSlotFile() { return CAMP_SLOT_FILE; }
+    public static String getCampEnquiryFile() { return CAMP_ENQUIRY_FILE; }
+    public static String getCampSuggestionFile() { return CAMP_SUGGESTION_FILE; }
 
     public static void main(String[] args) throws IOException, CsvException {
         System.out.println("========== CAMs Login Page ==========");

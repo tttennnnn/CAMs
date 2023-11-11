@@ -13,7 +13,6 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.time.LocalDate;
 import java.util.*;
 
 public class AppUtil {
@@ -68,10 +67,14 @@ public class AppUtil {
         CSVReader campInfoReader = AppUtil.getCSVReader(CAMsApp.getCampInfoFile(), 1);
         CSVReader campSlotReader = AppUtil.getCSVReader(CAMsApp.getCampSlotFile(), 1);
         CSVReader campDateReader = AppUtil.getCSVReader(CAMsApp.getCampDateFile(), 1);
+        CSVReader campEnquiryReader = AppUtil.getCSVReader(CAMsApp.getCampDateFile(), 1);
+        CSVReader campSuggestionReader = AppUtil.getCSVReader(CAMsApp.getCampDateFile(), 1);
 
         List<String[]> infoLines = campInfoReader.readAll();
         List<String[]> slotLines = campSlotReader.readAll();
         List<String[]> dateLines = campDateReader.readAll();
+        List<String[]> enquiryLines = campEnquiryReader.readAll();
+        List<String[]> suggestionLines = campSuggestionReader.readAll();
 
         campInfoReader.close(); campSlotReader.close(); campDateReader.close();
 
@@ -87,7 +90,7 @@ public class AppUtil {
 
             campList.putCamp(
                 campName,
-                new Camp(campName, staffID, description, null, null, visibility, faculty, location)
+                new Camp(campName, staffID, description, visibility, faculty, location, null, null, null, null)
             );
         }
 
@@ -95,9 +98,9 @@ public class AppUtil {
         for (String[] slotLine : slotLines) {
             CampSlot campSlot = new CampSlot(
                 Integer.parseInt(slotLine[1]),
-                CampSlot.getAttendeeListAsArrayList(slotLine[2]),
-                CampSlot.getAttendeeListAsArrayList(slotLine[3]),
-                CampSlot.getAttendeeListAsArrayList(slotLine[4])
+                CampSlot.getAttendeeListAsSet(slotLine[2]),
+                CampSlot.getCommitteeListAsMap(slotLine[3]),
+                CampSlot.getAttendeeListAsSet(slotLine[4])
             );
             campList.getCamp(slotLine[0]).setCampSlot(campSlot);
         }
@@ -110,6 +113,14 @@ public class AppUtil {
                 CampDates.getDateAsLocalDate(dateLine[3])
             );
             campList.getCamp(dateLine[0]).setDates(campDates);
+        }
+
+        // read from enquiries.csv
+
+
+        // read from suggestions.csv
+        for (String[] suggestionLine : suggestionLines) {
+
         }
 
         return campList;

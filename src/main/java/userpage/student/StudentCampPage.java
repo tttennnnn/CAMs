@@ -132,7 +132,7 @@ public class StudentCampPage extends User implements ApplicationPage {
                 camp.getCommitteeSlotAsString(),
                 camp.getLocation(),
                 camp.getFaculty(),
-                camp.getStatus(getUserID())
+                camp.getCampStatus(getUserID())
             );
         }
     }
@@ -165,7 +165,13 @@ public class StudentCampPage extends User implements ApplicationPage {
         Scanner sc = new Scanner(System.in);
         String campName = sc.nextLine();
 
+        // if already registered
+        CampList registeredCampList = getRegisteredCampList();
+        if (registeredCampList.hasCamp(campName))
+            throw new InvalidCampException("You have already registered for this camp.");
+
         CampList campList = getVisibleCampList();
+        // if camp not visible
         if (!campList.hasCamp(campName))
             throw new InvalidCampException();
 
@@ -188,12 +194,16 @@ public class StudentCampPage extends User implements ApplicationPage {
             case ("Attendee"):
                 if (camp.getTotalVacancy() == 0)
                     throw new InvalidCampException("Camp is full.");
-                camp.addStudent(getUserID());
+                camp.addAttendee(getUserID());
                 break;
             case ("Committee"):
                 if (camp.getTotalVacancy() == 0 || camp.getCommitteeVacancy() == 0)
                     throw new InvalidCampException("Camp is full.");
-                camp.addCommittee(getUserID());
+
+                String committeeStatus = StudentMainPage.getCommitteeStatusForUser(getUserID());
+                if (!committeeStatus.equals("-"))
+                    throw new InvalidCampException("You are already registered as a committee for camp: " + committeeStatus);
+                camp.addCommittee(getUserID(), 0);
                 break;
             default:
                 throw new InvalidCampException("Invalid role.");
@@ -205,8 +215,8 @@ public class StudentCampPage extends User implements ApplicationPage {
         campSlotReader.close();
         for (int row = 1; row < slotLines.size(); row++) {
             if (slotLines.get(row)[0].equals(campName)) {
-                slotLines.get(row)[2] = CampSlot.getAttendeeListAsString(camp.getCampSlot().getStudents());
-                slotLines.get(row)[3] = CampSlot.getAttendeeListAsString(camp.getCampSlot().getCommittees());
+                slotLines.get(row)[2] = CampSlot.getAttendeeListAsString(camp.getCampSlot().getAttendees());
+                slotLines.get(row)[3] = CampSlot.getCommitteeListAsString(camp.getCampSlot().getCommittees());
                 break;
             }
 
@@ -225,10 +235,10 @@ public class StudentCampPage extends User implements ApplicationPage {
             throw new InvalidCampException();
 
         Camp camp = campList.getCamp(campName);
-        if (camp.getCampSlot().getStudents().contains(getUserID()))
-            camp.getCampSlot().getStudents().remove(getUserID());
+        if (camp.getCampSlot().getAttendees().contains(getUserID()))
+            camp.getCampSlot().getAttendees().remove(getUserID());
         else
-            camp.getCampSlot().getCommittees().remove(getUserID());
+            throw new InvalidCampException("Cannot withdraw from camp committee role.");
 
         // add to withdrawal list
         camp.getCampSlot().getWithdrawns().add(getUserID());
@@ -238,9 +248,9 @@ public class StudentCampPage extends User implements ApplicationPage {
         campSlotReader.close();
         for (int row = 1; row < slotLines.size(); row++) {
             if (slotLines.get(row)[0].equals(campName)) {
-                slotLines.get(row)[2] = CampSlot.getAttendeeListAsString(camp.getCampSlot().getStudents());
-                slotLines.get(row)[3] = CampSlot.getAttendeeListAsString(camp.getCampSlot().getCommittees());
-                slotLines.get(row)[4] = CampSlot.getAttendeeListAsString(camp.getCampSlot().getWithdrawns());
+                slotLines.get(row)[2] = CampSlot.getAttendeeListAsString(camp.getCampSlot().getAttendees());
+                slotLines.get(row)[3] = CampSlot.getCommitteeListAsString(camp.getCampSlot().getCommittees());
+                slotLines.get(row)[4] = CampSlot.getWithdrawnListAsString(camp.getCampSlot().getWithdrawns());
                 break;
             }
         }
@@ -264,8 +274,8 @@ public class StudentCampPage extends User implements ApplicationPage {
         CampList campList = AppUtil.readCamps();
         CampList registeredCampList = new CampList();
         for (Camp camp : campList.getCampSet()) {
-            if (!camp.getCampSlot().getStudents().contains(getUserID()) &&
-                !camp.getCampSlot().getCommittees().contains(getUserID()))
+            if (!camp.getCampSlot().getAttendees().contains(getUserID()) &&
+                !camp.getCampSlot().getCommittees().containsKey(getUserID()))
                 continue;
             registeredCampList.putCamp(camp.getName(), camp);
         }

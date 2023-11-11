@@ -41,18 +41,32 @@ public class StudentMainPage extends UserMainPage {
                     break;
                 case ("4"):
                     try {
-                        openChangePasswordPage();
+                        openMyEnquiries();
                     } catch (PageTerminatedException e) {
                         runPage();
                     }
                     break;
                 case ("5"):
+                    // check committee status
+                    if (getCommitteeStatus().equals("-")) {
+                        System.out.println("You must be a camp committee to use this feature.");
+                        break;
+                    }
+
                     try {
-                        openEnquiryPage();
+                        openCampCommitteePage();
                     } catch (PageTerminatedException e) {
                         runPage();
                     }
+                    break;
                 case ("6"):
+                    try {
+                        openChangePasswordPage();
+                    } catch (PageTerminatedException e) {
+                        runPage();
+                    }
+                    break;
+                case ("7"):
                     throw new PageTerminatedException();
                 default:
                     System.out.println("Invalid input.");
@@ -66,39 +80,49 @@ public class StudentMainPage extends UserMainPage {
         System.out.println("\t1. View usage");
         System.out.println("\t2. View profile");
         System.out.println("\t3. To Camp page");
-        System.out.println("\t4. To Enquiry page");
-        System.out.println("\t5. Change password");
-        System.out.println("\t6. Log out");
+        System.out.println("\t4. View/Edit/Delete my enquiries"); // view/edit/delete my enquiry
+        System.out.println("\t5. To Camp Committee Page");
+        System.out.println("\t6. Change password");
+        System.out.println("\t7. Log out");
     }
 
     @Override
     protected void showProfile() {
-        System.out.println("[Student Main Page]");
-        System.out.println("Name: " + getName());
-        System.out.println("Email: " + getEmail());
-        System.out.println("Faculty: " + getFaculty());
-        System.out.println("Committee Status: " + getUserStatus());
-    }
-
-    private String getUserStatus() {
-        CampList campList = null;
         try {
-            campList = AppUtil.readCamps();
-        } catch (IOException | CsvException e) {;
+            System.out.println("[Student Main Page] " + getFirstLoginPrompt());
+            System.out.println("Name: " + getName());
+            System.out.println("Email: " + getEmail());
+            System.out.println("Faculty: " + getFaculty());
+            System.out.println("Committee Status: " + getCommitteeStatus());
+        } catch (IOException | CsvException e) {
+            System.out.println(e.getMessage());
             System.exit(1);
         }
+    }
 
+    private String getCommitteeStatus() throws IOException, CsvException {
+        CampList campList = AppUtil.readCamps();
         for (Camp camp : campList.getCampSet()) {
-            if (camp.getStatus(getUserID()).equals("Committee"))
+            if (camp.getCampStatus(getUserID()).equals("Committee"))
                 return camp.getName();
         }
         return "-";
+    }
+    public static String getCommitteeStatusForUser(String ID) throws IOException, CsvException {
+        StudentMainPage page = new StudentMainPage(ID, null, null, null);
+        return page.getCommitteeStatus();
     }
     private void openCampPage() throws PageTerminatedException, IOException, CsvException {
         StudentCampPage campPage = new StudentCampPage(getUserID(), getEmail(), getName(), getFaculty());
         campPage.runPage();
     }
-    private void openEnquiryPage() throws PageTerminatedException {
+    private void openMyEnquiries() throws PageTerminatedException {
+        //view edit delete
+        //for student
+    }
 
+    private void openCampCommitteePage() throws  PageTerminatedException, IOException, CsvException {
+        CampCommitteePage campCommitteePage = new CampCommitteePage(getUserID(), getEmail(), getName(), getFaculty(), getCommitteeStatus());
+        campCommitteePage.runPage();
     }
 }
