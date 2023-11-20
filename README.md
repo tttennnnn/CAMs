@@ -1,9 +1,8 @@
 # CAMs - SC2002 Assignment 
 
-- UserList??
-- check password policy (for resetting) (sha256)
+- report format
+- add point to committee if suggestion accepted
+- make interface/abstract for common studentpage and staffpage 
 - resource files (./data/*) should be put in the same dir as jar
-- consider console.readPassword()
-- manage exceptions
+- report files (./report/*)
 - each user's userID must be unique
-- (next) read suggestions and enquiries from csv
