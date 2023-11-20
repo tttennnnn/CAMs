@@ -1,8 +1,6 @@
 package userpage.student;
 
-import app.CAMsApp;
 import camp.*;
-import com.opencsv.CSVReader;
 import com.opencsv.exceptions.CsvException;
 import userpage.ApplicationPage;
 import userpage.User;
@@ -14,7 +12,6 @@ import util.exceptions.PageTerminatedException;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Scanner;
 import java.util.TreeMap;
 
@@ -209,19 +206,7 @@ public class StudentCampPage extends User implements ApplicationPage {
                 throw new InvalidCampException("Invalid role.");
         }
 
-        // update csv
-        CSVReader campSlotReader = AppUtil.getCSVReader(CAMsApp.getCampSlotFile());
-        List<String[]> slotLines = campSlotReader.readAll();
-        campSlotReader.close();
-        for (int row = 1; row < slotLines.size(); row++) {
-            if (slotLines.get(row)[0].equals(campName)) {
-                slotLines.get(row)[2] = CampSlot.getAttendeeListAsString(camp.getCampSlot().getAttendees());
-                slotLines.get(row)[3] = CampSlot.getCommitteeListAsString(camp.getCampSlot().getCommittees());
-                break;
-            }
-
-        }
-        AppUtil.overwriteCSV(CAMsApp.getCampSlotFile(), slotLines);
+        CampSlot.updateCampSlotToFile(campName, camp.getCampSlot());
         System.out.println("Registered as " + role);
     }
 
@@ -243,18 +228,7 @@ public class StudentCampPage extends User implements ApplicationPage {
         // add to withdrawal list
         camp.getCampSlot().getWithdrawns().add(getUserID());
 
-        CSVReader campSlotReader = AppUtil.getCSVReader(CAMsApp.getCampSlotFile());
-        List<String[]> slotLines = campSlotReader.readAll();
-        campSlotReader.close();
-        for (int row = 1; row < slotLines.size(); row++) {
-            if (slotLines.get(row)[0].equals(campName)) {
-                slotLines.get(row)[2] = CampSlot.getAttendeeListAsString(camp.getCampSlot().getAttendees());
-                slotLines.get(row)[3] = CampSlot.getCommitteeListAsString(camp.getCampSlot().getCommittees());
-                slotLines.get(row)[4] = CampSlot.getWithdrawnListAsString(camp.getCampSlot().getWithdrawns());
-                break;
-            }
-        }
-        AppUtil.overwriteCSV(CAMsApp.getCampSlotFile(), slotLines);
+        CampSlot.updateCampSlotToFile(campName, camp.getCampSlot());
         System.out.println("Withdrawn from " + camp.getName());
     }
 

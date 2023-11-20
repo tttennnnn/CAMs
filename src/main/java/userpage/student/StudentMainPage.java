@@ -93,7 +93,10 @@ public class StudentMainPage extends UserMainPage {
             System.out.println("Name: " + getName());
             System.out.println("Email: " + getEmail());
             System.out.println("Faculty: " + getFaculty());
-            System.out.println("Committee Status: " + getCommitteeStatus());
+            System.out.print("Camp Committee Status: " + getCommitteeStatus());
+            if (!getCommitteeStatus().equals("-"))
+                System.out.print(" -> " + getCommitteePoint() + " point(s)");
+            System.out.println();
         } catch (IOException | CsvException e) {
             System.out.println(e.getMessage());
             System.exit(1);
@@ -107,6 +110,14 @@ public class StudentMainPage extends UserMainPage {
                 return camp.getName();
         }
         return "-";
+    }
+    private int getCommitteePoint() throws IOException, CsvException {
+        CampList campList = AppUtil.readCamps();
+        for (Camp camp : campList.getCampSet()) {
+            if (camp.getCampStatus(getUserID()).equals("Committee"))
+                return camp.getCommitteePoint(getUserID());
+        }
+        return 0;
     }
     public static String getCommitteeStatusForUser(String ID) throws IOException, CsvException {
         StudentMainPage page = new StudentMainPage(ID, null, null, null);

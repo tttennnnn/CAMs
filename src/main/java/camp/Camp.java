@@ -37,7 +37,8 @@ public class Camp {
     public boolean getVisibility() { return visibility; }
     public Faculty getFaculty() { return faculty; }
     public Location getLocation() { return location; }
-
+    public ArrayList<Suggestion> getSuggestions() { return suggestions; }
+    public ArrayList<Enquiry> getEnquiries() { return enquiries; }
     public int getTotalVacancy() {
         return campSlot.getMaxTotal() - campSlot.getAttendees().size() - campSlot.getCommittees().size();
     }
@@ -49,6 +50,12 @@ public class Camp {
     }
     public String getCommitteeSlotAsString() {
         return campSlot.getCommittees().size() + "/" + campSlot.getMaxCommittee();
+    }
+    public int getCommitteePoint(String committee) {
+        return campSlot.getCommittees().get(committee);
+    }
+    public void setCommitteePoint(String committee, int point) {
+        campSlot.getCommittees().put(committee, point);
     }
     public String getCampStatus(String key) {
         if (campSlot.getAttendees().contains(key))

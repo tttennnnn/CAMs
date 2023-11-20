@@ -2,6 +2,8 @@ package util;
 
 import app.CAMsApp;
 import camp.*;
+import camp.convo.Enquiry;
+import camp.convo.Suggestion;
 import com.opencsv.CSVReader;
 import com.opencsv.CSVReaderBuilder;
 import com.opencsv.CSVWriter;
@@ -13,6 +15,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.util.*;
 
 public class AppUtil {
@@ -32,11 +35,12 @@ public class AppUtil {
             .withSkipLines(n).build();
     }
     public static void overwriteCSV(String fileName, List<String[]> newData) throws IOException {
-        CSVWriter csvWriter = new CSVWriter(getFileWriter(fileName),
-                                            CSVWriter.DEFAULT_SEPARATOR,
-                                            CSVWriter.NO_QUOTE_CHARACTER,
-                                            CSVWriter.DEFAULT_ESCAPE_CHARACTER,
-                                            CSVWriter.DEFAULT_LINE_END);
+//        CSVWriter csvWriter = new CSVWriter(getFileWriter(fileName),
+//                                            CSVWriter.DEFAULT_SEPARATOR,
+//                                            CSVWriter.NO_QUOTE_CHARACTER,
+//                                            CSVWriter.DEFAULT_ESCAPE_CHARACTER,
+//                                            CSVWriter.DEFAULT_LINE_END);
+        CSVWriter csvWriter = new CSVWriter(getFileWriter(fileName));
         csvWriter.writeAll(newData);
         csvWriter.flush();
         csvWriter.close();
@@ -67,8 +71,8 @@ public class AppUtil {
         CSVReader campInfoReader = AppUtil.getCSVReader(CAMsApp.getCampInfoFile(), 1);
         CSVReader campSlotReader = AppUtil.getCSVReader(CAMsApp.getCampSlotFile(), 1);
         CSVReader campDateReader = AppUtil.getCSVReader(CAMsApp.getCampDateFile(), 1);
-        CSVReader campEnquiryReader = AppUtil.getCSVReader(CAMsApp.getCampDateFile(), 1);
-        CSVReader campSuggestionReader = AppUtil.getCSVReader(CAMsApp.getCampDateFile(), 1);
+        CSVReader campEnquiryReader = AppUtil.getCSVReader(CAMsApp.getCampEnquiryFile(), 1);
+        CSVReader campSuggestionReader = AppUtil.getCSVReader(CAMsApp.getCampSuggestionFile(), 1);
 
         List<String[]> infoLines = campInfoReader.readAll();
         List<String[]> slotLines = campSlotReader.readAll();
@@ -100,7 +104,7 @@ public class AppUtil {
                 Integer.parseInt(slotLine[1]),
                 CampSlot.getAttendeeListAsSet(slotLine[2]),
                 CampSlot.getCommitteeListAsMap(slotLine[3]),
-                CampSlot.getAttendeeListAsSet(slotLine[4])
+                CampSlot.getWithdrawnListAsSet(slotLine[4])
             );
             campList.getCamp(slotLine[0]).setCampSlot(campSlot);
         }
@@ -116,11 +120,19 @@ public class AppUtil {
         }
 
         // read from enquiries.csv
-
+        for (String[] enquiryLine : enquiryLines) {
+            ArrayList<Enquiry> enquiries = Enquiry.getEnquiryListAsArrayList(
+                Arrays.copyOfRange(enquiryLine, 1, enquiryLine.length)
+            );
+            campList.getCamp(enquiryLine[0]).setEnquiries(enquiries);
+        }
 
         // read from suggestions.csv
         for (String[] suggestionLine : suggestionLines) {
-
+            ArrayList<Suggestion> suggestions = Suggestion.getSuggestionListAsArrayList(
+                Arrays.copyOfRange(suggestionLine, 1, suggestionLine.length)
+            );
+            campList.getCamp(suggestionLine[0]).setSuggestions(suggestions);
         }
 
         return campList;

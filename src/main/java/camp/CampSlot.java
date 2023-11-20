@@ -1,8 +1,15 @@
 package camp;
 
+import app.CAMsApp;
+import com.opencsv.CSVReader;
+import com.opencsv.exceptions.CsvException;
+import util.AppUtil;
+
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 
 public class CampSlot {
     private HashSet<String> attendees, withdrawns;
@@ -29,7 +36,9 @@ public class CampSlot {
     public int getMaxTotal() { return maxTotal; }
     public int getMaxCommittee() { return maxCommittee; }
 
-    public static String getAttendeeListAsString(HashSet<String> attendees) { return String.join(";", attendees); }
+    public static String getAttendeeListAsString(HashSet<String> attendees) {
+        return String.join(";", attendees);
+    }
     public static String getCommitteeListAsString(HashMap<String, Integer> committees) {
         String[] arr = new String[committees.size()];
         int i = 0;
@@ -38,7 +47,9 @@ public class CampSlot {
         }
         return String.join(";", arr);
     }
-    public static String getWithdrawnListAsString(HashSet<String> withdrawns) { return String.join(";", withdrawns); }
+    public static String getWithdrawnListAsString(HashSet<String> withdrawns) {
+        return String.join(";", withdrawns);
+    }
     public static HashSet<String> getAttendeeListAsSet(String attendees) {
         if (attendees.isEmpty())
             return new HashSet<>();
@@ -65,5 +76,21 @@ public class CampSlot {
 
         String[] arr = withdrawns.split(";");
         return new HashSet<>(Arrays.asList(arr));
+    }
+
+    public static void updateCampSlotToFile(String campName, CampSlot campSlot) throws IOException, CsvException {
+        CSVReader campSlotReader = AppUtil.getCSVReader(CAMsApp.getCampSlotFile());
+        List<String[]> slotLines = campSlotReader.readAll();
+        for (int row = 1; row < slotLines.size(); row++) {
+            String[] slotLine = slotLines.get(row);
+            if (slotLine[0].equals(campName)) {
+                slotLine[1] = Integer.toString(campSlot.getMaxTotal());
+                slotLine[2] = CampSlot.getAttendeeListAsString(campSlot.getAttendees());
+                slotLine[3] = CampSlot.getCommitteeListAsString(campSlot.getCommittees());
+                slotLine[4] = CampSlot.getWithdrawnListAsString(campSlot.getWithdrawns());
+                break;
+            }
+        }
+        AppUtil.overwriteCSV(CAMsApp.getCampSlotFile(), slotLines);
     }
 }
