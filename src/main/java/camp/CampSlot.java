@@ -1,11 +1,8 @@
 package camp;
 
 import app.CAMsApp;
-import com.opencsv.CSVReader;
-import com.opencsv.exceptions.CsvException;
 import util.AppUtil;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -78,9 +75,8 @@ public class CampSlot {
         return new HashSet<>(Arrays.asList(arr));
     }
 
-    public static void updateCampSlotToFile(String campName, CampSlot campSlot) throws IOException, CsvException {
-        CSVReader campSlotReader = AppUtil.getCSVReader(CAMsApp.getCampSlotFile());
-        List<String[]> slotLines = campSlotReader.readAll();
+    public static void updateCampSlotToFile(String campName, CampSlot campSlot) {
+        List<String[]> slotLines = AppUtil.getDataFromCSV(CAMsApp.getCampSlotFile());
         for (int row = 1; row < slotLines.size(); row++) {
             String[] slotLine = slotLines.get(row);
             if (slotLine[0].equals(campName)) {

@@ -66,6 +66,13 @@ public class Camp {
             return "Withdrawn";
         return "-";
     }
+    public boolean containsDate(LocalDate date) {
+        LocalDate thisStarts = dates.getStartDate();
+        LocalDate thisEnds = dates.getEndDate();
+        if (date.isBefore(thisStarts))
+            return false;
+        return !date.isAfter(thisEnds);
+    }
     public boolean hasTimeClash(Camp anotherCamp) {
         LocalDate thisStarts = dates.getStartDate();
         LocalDate thisEnds = dates.getEndDate();

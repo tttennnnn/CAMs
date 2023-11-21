@@ -2,13 +2,11 @@ package userpage;
 
 import app.CAMsApp;
 import camp.Faculty;
-import com.opencsv.CSVReader;
-import com.opencsv.exceptions.CsvException;
 import util.AppUtil;
 import util.exceptions.IllegalPasswordException;
+import util.exceptions.InvalidUserInputException;
 import util.exceptions.PageTerminatedException;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Scanner;
 
@@ -18,7 +16,7 @@ public class ChangePasswordPage extends User implements ApplicationPage {
     }
 
     @Override
-    public void runPage() throws PageTerminatedException, IOException, CsvException {
+    public void runPage() throws PageTerminatedException {
         printHeader();
 
         Scanner sc = new Scanner(System.in);
@@ -34,7 +32,11 @@ public class ChangePasswordPage extends User implements ApplicationPage {
                     showPasswordPolicy();
                     break;
                 case ("3"):
-                    changePassword();
+                    try {
+                        changePassword();
+                    } catch (InvalidUserInputException e) {
+                        System.out.println(e.getMessage());
+                    }
                     break;
                 case ("4"):
                     throw new PageTerminatedException();
@@ -65,7 +67,7 @@ public class ChangePasswordPage extends User implements ApplicationPage {
         System.out.println("\t- be of length 8 - 15 characters.");
         System.out.println("\t- not contain whitespace.");
     }
-    private void changePassword() throws IOException, CsvException {
+    private void changePassword() throws InvalidUserInputException {
         Scanner sc = new Scanner(System.in);
         System.out.print("Enter new password: ");
         String newPW = sc.nextLine();
@@ -73,15 +75,11 @@ public class ChangePasswordPage extends User implements ApplicationPage {
         try {
             validatePassword(newPW);
         } catch (IllegalPasswordException e) {
-            System.out.println(e.getMessage());
-            return;
+            throw new InvalidUserInputException(e.getMessage());
         }
 
         String keyFile = CAMsApp.getKeyFile();
-        CSVReader csvReader = AppUtil.getCSVReader(keyFile);
-
-        List<String[]> lines = csvReader.readAll();
-        csvReader.close();
+        List<String[]> lines = AppUtil.getDataFromCSV(keyFile);
         for (int row = 1; row < lines.size(); row++) {
             if (lines.get(row)[0].equals(getUserID())){
                 lines.get(row)[1] = AppUtil.sha256(newPW);

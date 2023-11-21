@@ -1,27 +1,28 @@
 package camp.convo;
 
 import app.CAMsApp;
-import com.opencsv.CSVReader;
-import com.opencsv.exceptions.CsvException;
 import org.apache.commons.lang3.ArrayUtils;
 import util.AppUtil;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 public class Enquiry {
     private Message question, answer;
-    public Enquiry(Message question, Message answer) {
+    private Enquiry(Message question, Message answer) {
         this.question = question;
         this.answer = answer;
     }
     public boolean isProcessed() { return answer != null; }
     public Message getQuestion() { return question; }
     public Message getAnswer() { return answer; }
+    public void editQuestion(String content) { question.setContent(content); }
     public void setAnswer(String owner, String content) { this.answer = new Message(owner, content); }
+    public static Enquiry createEnquiry(String questionOwner, String questionContent) {
+        return new Enquiry(new Message(questionOwner, questionContent), null);
+    }
 
-    public static String[] getEnquiryListAsStringArray(ArrayList<Enquiry> enquiries) {
+    private static String[] getEnquiryListAsStringArray(ArrayList<Enquiry> enquiries) {
         String[] res = new String[2 * enquiries.size()];
         for (int i = 0; i < enquiries.size(); i++) {
             Enquiry enquiry = enquiries.get(i);
@@ -45,9 +46,8 @@ public class Enquiry {
         return res;
     }
 
-    public static void updateEnquiriesToFile(String campName, ArrayList<Enquiry> enquiries) throws IOException, CsvException {
-        CSVReader campEnquiryReader = AppUtil.getCSVReader(CAMsApp.getCampEnquiryFile());
-        List<String[]> enquiryLines = campEnquiryReader.readAll();
+    public static void updateEnquiriesToFile(String campName, ArrayList<Enquiry> enquiries) {
+        List<String[]> enquiryLines = AppUtil.getDataFromCSV(CAMsApp.getCampEnquiryFile());
         for (int row = 1; row < enquiryLines.size(); row++) {
             String[] enquiryLine = enquiryLines.get(row);
             if (enquiryLine[0].equals(campName)) {

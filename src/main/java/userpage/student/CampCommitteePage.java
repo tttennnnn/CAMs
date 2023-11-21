@@ -1,20 +1,18 @@
 package userpage.student;
 
 import camp.Camp;
+import camp.CampDates;
 import camp.CampSlot;
 import camp.Faculty;
 import camp.convo.Enquiry;
 import camp.convo.Suggestion;
-import com.opencsv.exceptions.CsvException;
 import userpage.ApplicationPage;
 import userpage.User;
 import util.AppUtil;
-import util.exceptions.InvalidEnquiryException;
-import util.exceptions.InvalidSuggestionException;
-import util.exceptions.PageTerminatedException;
+import util.exceptions.*;
 
-import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 public class CampCommitteePage extends User implements ApplicationPage {
@@ -25,7 +23,7 @@ public class CampCommitteePage extends User implements ApplicationPage {
     }
 
     @Override
-    public void runPage() throws PageTerminatedException, IOException, CsvException {
+    public void runPage() throws PageTerminatedException {
         printHeader();
 
         Scanner sc = new Scanner(System.in);
@@ -43,7 +41,7 @@ public class CampCommitteePage extends User implements ApplicationPage {
                 case ("3"):
                     try {
                         changeSuggestion();
-                    } catch (InvalidSuggestionException e) {
+                    } catch (InvalidUserInputException e) {
                         System.out.println(e.getMessage());
                     }
                     break;
@@ -56,11 +54,17 @@ public class CampCommitteePage extends User implements ApplicationPage {
                 case ("6"):
                     try {
                         answerEnquiry();
-                    } catch (InvalidEnquiryException e) {
+                    } catch (InvalidUserInputException e) {
                         System.out.println(e.getMessage());
                     }
                     break;
                 case ("7"):
+                    try {
+                        generateReport();
+                    } catch (InvalidUserInputException e) {
+                        System.out.println(e.getMessage());
+                    }
+                    break;
                 case ("8"):
                     throw new PageTerminatedException();
                 default:
@@ -86,12 +90,12 @@ public class CampCommitteePage extends User implements ApplicationPage {
         System.out.println("\t3. Edit/Delete a suggestion");
         System.out.println("\t4. Submit a suggestion");
         System.out.println("\t5. View enquiries");
-        System.out.println("\t6. Answer enquiry");// view/answer to all enquiries of my camp
+        System.out.println("\t6. Answer to an enquiry");// view/answer to all enquiries of my camp
         System.out.println("\t7. Generate report");
         System.out.println("\t8. Return to previous page");
     }
-    private void viewMySuggestions() throws IOException, CsvException {
-        System.out.println("[Only unprocessed suggestions are shown]");
+    private void viewMySuggestions() {
+        System.out.println("*** Only unprocessed suggestions are shown. ***");
         System.out.printf("%-10s | %s\n",
             "Index", "Suggestion"
         );
@@ -109,12 +113,12 @@ public class CampCommitteePage extends User implements ApplicationPage {
             }
         }
     }
-    private void changeSuggestion() throws InvalidSuggestionException, IOException, CsvException {
+    private void changeSuggestion() throws InvalidUserInputException {
         Scanner sc = new Scanner(System.in);
         System.out.print("Choose action [edit, delete]: ");
         String action = sc.nextLine();
         if (!action.equals("edit") && !action.equals("delete")) {
-            throw new InvalidSuggestionException("Invalid action choice.");
+            throw new InvalidUserInputException("Invalid action choice.");
         }
 
         Camp myCamp = AppUtil.readCamps().getCamp(myCampName);
@@ -125,7 +129,7 @@ public class CampCommitteePage extends User implements ApplicationPage {
         try {
             index = Integer.parseInt(sc.nextLine());
         } catch (NumberFormatException e) {
-            throw new InvalidSuggestionException();
+            throw new InvalidUserInputException("Invalid index.");
         }
 
         int realIndex;
@@ -137,12 +141,12 @@ public class CampCommitteePage extends User implements ApplicationPage {
                 index--;
             }
         }
-        Suggestion suggestion;
+
         try {
             if (action.equals("edit")) {
-                suggestion = suggestions.get(realIndex);
+                Suggestion suggestion = suggestions.get(realIndex);
                 System.out.print("Enter new suggestion: ");
-                suggestion.setContent(sc.nextLine());
+                suggestion.editSuggestion(sc.nextLine());
             } else {
                 suggestions.remove(realIndex);
                 // decrease committee point
@@ -150,7 +154,7 @@ public class CampCommitteePage extends User implements ApplicationPage {
                 myCamp.setCommitteePoint(getUserID(), point);
             }
         } catch (IndexOutOfBoundsException e) {
-            throw new InvalidSuggestionException();
+            throw new InvalidUserInputException("Invalid index.");
         }
 
         Suggestion.updateSuggestionsToFile(myCampName, suggestions);
@@ -160,13 +164,13 @@ public class CampCommitteePage extends User implements ApplicationPage {
         else
             System.out.println("Suggestion deleted");
     }
-    private void submitSuggestion() throws IOException, CsvException {
+    private void submitSuggestion() {
         Camp myCamp = AppUtil.readCamps().getCamp(myCampName);
         ArrayList<Suggestion> suggestions = myCamp.getSuggestions();
 
         Scanner sc = new Scanner(System.in);
         System.out.print("Enter new suggestion: ");
-        suggestions.add(new Suggestion(getUserID(), sc.nextLine()));
+        suggestions.add(Suggestion.createSuggestion(getUserID(), sc.nextLine()));
 
         // add committee point
         int point = 1 + myCamp.getCommitteePoint(getUserID());
@@ -176,7 +180,7 @@ public class CampCommitteePage extends User implements ApplicationPage {
         CampSlot.updateCampSlotToFile(myCampName, myCamp.getCampSlot());
         System.out.println("Suggestion submitted.");
     }
-    private void viewEnquiries() throws IOException, CsvException {
+    private void viewEnquiries() {
         System.out.printf("%-10s | %-30s | %s\n",
             "Index", "Enquiry", "Response"
         );
@@ -193,7 +197,7 @@ public class CampCommitteePage extends User implements ApplicationPage {
             );
         }
     }
-    private void answerEnquiry() throws InvalidEnquiryException, IOException, CsvException {
+    private void answerEnquiry() throws InvalidUserInputException {
         Camp myCamp = AppUtil.readCamps().getCamp(myCampName);
         ArrayList<Enquiry> enquiries = myCamp.getEnquiries();
 
@@ -203,18 +207,18 @@ public class CampCommitteePage extends User implements ApplicationPage {
         try {
             index = Integer.parseInt(sc.nextLine());
         } catch (NumberFormatException e) {
-            throw new InvalidEnquiryException();
+            throw new InvalidUserInputException("Invalid index.");
         }
 
         Enquiry enquiry;
         try {
             enquiry = enquiries.get(index);
         } catch (IndexOutOfBoundsException e) {
-            throw new InvalidEnquiryException();
+            throw new InvalidUserInputException("Invalid index.");
         }
 
         if (enquiry.isProcessed())
-            throw new InvalidEnquiryException("This enquiry is already processed.");
+            throw new InvalidUserInputException("This enquiry is already processed.");
 
         System.out.print("Enter response for the chosen enquiry: ");
         String answerContent = sc.nextLine();
@@ -227,5 +231,62 @@ public class CampCommitteePage extends User implements ApplicationPage {
         Enquiry.updateEnquiriesToFile(myCampName, enquiries);
         CampSlot.updateCampSlotToFile(myCampName, myCamp.getCampSlot());
         System.out.println("Response submitted.");
+    }
+    private void generateReport() throws InvalidUserInputException {
+        Scanner sc = new Scanner(System.in);
+        System.out.println("*** This feature always overwrites if the report file already exists. ***");
+        System.out.print("Choose filter [all, committee, attendee]: ");
+        String filter = sc.nextLine();
+
+        boolean showCommittee = false, showAttendee = false;
+        if (filter.equals("all")) {
+            showCommittee = true;
+            showAttendee = true;
+        } else if (filter.equals("committee")) {
+            showCommittee = true;
+        } else if (filter.equals("attendee")) {
+            showAttendee = true;
+        } else
+            throw new InvalidUserInputException("Invalid filter.");
+
+        // get camp
+        Camp myCamp = AppUtil.readCamps().getCamp(myCampName);
+
+        // write camp details
+        List<String> lines = new ArrayList<>();
+        lines.add("| Camp Report | Filter: " + filter);
+        lines.add("Name: " + myCamp.getName());
+        lines.add("Description: " + myCamp.getDescription());
+        lines.add("Dates: " +
+            CampDates.getDateAsString(myCamp.getCampDates().getStartDate()) +
+            " - " +
+            CampDates.getDateAsString(myCamp.getCampDates().getEndDate())
+        );
+        lines.add("Registration deadline: " +
+            CampDates.getDateAsString(myCamp.getCampDates().getRegistrationDeadline())
+        );
+        lines.add("Faculty: " + myCamp.getFaculty());
+        lines.add("Location: " + myCamp.getLocation());
+        lines.add("Total slot: " + myCamp.getTotalSlotAsString());
+        lines.add("Committee slot: " + myCamp.getCommitteeSlotAsString());
+
+        // write committees & attendees
+        if (showCommittee) {
+            lines.add("Committees: ");
+            for (String committee : myCamp.getCampSlot().getCommittees().keySet()) {
+                lines.add("\t" + committee);
+            }
+        }
+        if (showAttendee) {
+            lines.add("Attendees: ");
+            for (String attendee : myCamp.getCampSlot().getAttendees()) {
+                lines.add("\t" + attendee);
+            }
+        }
+
+        // write to file
+        String reportFileName = "report/" + myCampName + "_" + filter + ".txt";
+        AppUtil.overwriteTXT(reportFileName, lines);
+        System.out.println("Report generated as " + reportFileName);
     }
 }

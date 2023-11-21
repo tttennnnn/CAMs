@@ -9,5 +9,5 @@ public class Message {
     }
     public String getContent() { return content; }
     public String getOwner() { return owner; }
-    public void setContent(String content) { this.content = content; }
+    void setContent(String content) { this.content = content; }
 }

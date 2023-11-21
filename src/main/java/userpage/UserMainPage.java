@@ -2,12 +2,10 @@ package userpage;
 
 import app.CAMsApp;
 import camp.Faculty;
-import com.opencsv.CSVReader;
-import com.opencsv.exceptions.CsvException;
 import util.AppUtil;
 import util.exceptions.PageTerminatedException;
 
-import java.io.IOException;
+import java.util.List;
 
 public abstract class UserMainPage extends User implements ApplicationPage {
     // abstract
@@ -26,22 +24,21 @@ public abstract class UserMainPage extends User implements ApplicationPage {
         showUsage();
     }
 
-    protected void openChangePasswordPage() throws PageTerminatedException, IOException, CsvException {
+    protected void openChangePasswordPage() throws PageTerminatedException {
         ChangePasswordPage changePasswordPage = new ChangePasswordPage(getUserID(), getEmail(), getName(), getFaculty());
         changePasswordPage.runPage();
     }
 
-    protected String getFirstLoginPrompt() throws IOException, CsvException {
+    protected String getFirstLoginPrompt() {
         String prompt = "";
-        CSVReader csvReader = AppUtil.getCSVReader(CAMsApp.getKeyFile(), 1);
-        String[] line;
-        while ((line = csvReader.readNext()) != null) {
+        List<String[]> lines = AppUtil.getDataFromCSV(CAMsApp.getKeyFile());
+        for (int row = 1; row < lines.size(); row++) {
+            String[] line = lines.get(row);
             if (getUserID().equals(line[0])) {
                 if (line[1].isEmpty())
                     prompt = "*** Your password is default. Please change it. ***";
                 break;
             }
-
         }
         return prompt;
     }

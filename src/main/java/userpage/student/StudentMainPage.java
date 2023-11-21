@@ -2,13 +2,11 @@ package userpage.student;
 
 import camp.Camp;
 import camp.Faculty;
-import com.opencsv.exceptions.CsvException;
 import userpage.UserMainPage;
 import util.AppUtil;
 import util.CampList;
 import util.exceptions.PageTerminatedException;
 
-import java.io.IOException;
 import java.util.Scanner;
 
 public class StudentMainPage extends UserMainPage {
@@ -17,7 +15,7 @@ public class StudentMainPage extends UserMainPage {
     }
 
     @Override
-    public void runPage() throws PageTerminatedException, IOException, CsvException {
+    public void runPage() throws PageTerminatedException {
         printHeader();
 
         Scanner sc = new Scanner(System.in);
@@ -40,13 +38,6 @@ public class StudentMainPage extends UserMainPage {
                     }
                     break;
                 case ("4"):
-                    try {
-                        openMyEnquiries();
-                    } catch (PageTerminatedException e) {
-                        runPage();
-                    }
-                    break;
-                case ("5"):
                     // check committee status
                     if (getCommitteeStatus().equals("-")) {
                         System.out.println("You must be a camp committee to use this feature.");
@@ -59,14 +50,14 @@ public class StudentMainPage extends UserMainPage {
                         runPage();
                     }
                     break;
-                case ("6"):
+                case ("5"):
                     try {
                         openChangePasswordPage();
                     } catch (PageTerminatedException e) {
                         runPage();
                     }
                     break;
-                case ("7"):
+                case ("6"):
                     throw new PageTerminatedException();
                 default:
                     System.out.println("Invalid input.");
@@ -80,59 +71,48 @@ public class StudentMainPage extends UserMainPage {
         System.out.println("\t1. View usage");
         System.out.println("\t2. View profile");
         System.out.println("\t3. To Camp page");
-        System.out.println("\t4. View/Edit/Delete my enquiries"); // view/edit/delete my enquiry
-        System.out.println("\t5. To Camp Committee Page");
-        System.out.println("\t6. Change password");
-        System.out.println("\t7. Log out");
+        System.out.println("\t4. To Camp Committee Page");
+        System.out.println("\t5. Change password");
+        System.out.println("\t6. Log out");
     }
 
     @Override
     protected void showProfile() {
-        try {
-            System.out.println("[Student Main Page] " + getFirstLoginPrompt());
-            System.out.println("Name: " + getName());
-            System.out.println("Email: " + getEmail());
-            System.out.println("Faculty: " + getFaculty());
-            System.out.print("Camp Committee Status: " + getCommitteeStatus());
-            if (!getCommitteeStatus().equals("-"))
-                System.out.print(" -> " + getCommitteePoint() + " point(s)");
-            System.out.println();
-        } catch (IOException | CsvException e) {
-            System.out.println(e.getMessage());
-            System.exit(1);
-        }
+        System.out.println("[Student Main Page] " + getFirstLoginPrompt());
+        System.out.println("Name: " + getName());
+        System.out.println("Email: " + getEmail());
+        System.out.println("Faculty: " + getFaculty());
+        System.out.print("Camp Committee Status: " + getCommitteeStatus());
+        if (!getCommitteeStatus().equals("-"))
+            System.out.print(" -> " + getCommitteePoint() + " point(s)");
+        System.out.println();
     }
 
-    private String getCommitteeStatus() throws IOException, CsvException {
+    private String getCommitteeStatus() {
         CampList campList = AppUtil.readCamps();
-        for (Camp camp : campList.getCampSet()) {
+        for (Camp camp : campList.getSortedCampSet()) {
             if (camp.getCampStatus(getUserID()).equals("Committee"))
                 return camp.getName();
         }
         return "-";
     }
-    private int getCommitteePoint() throws IOException, CsvException {
+    private int getCommitteePoint() {
         CampList campList = AppUtil.readCamps();
-        for (Camp camp : campList.getCampSet()) {
+        for (Camp camp : campList.getSortedCampSet()) {
             if (camp.getCampStatus(getUserID()).equals("Committee"))
                 return camp.getCommitteePoint(getUserID());
         }
         return 0;
     }
-    public static String getCommitteeStatusForUser(String ID) throws IOException, CsvException {
+    public static String getCommitteeStatusForUser(String ID) {
         StudentMainPage page = new StudentMainPage(ID, null, null, null);
         return page.getCommitteeStatus();
     }
-    private void openCampPage() throws PageTerminatedException, IOException, CsvException {
+    private void openCampPage() throws PageTerminatedException {
         StudentCampPage campPage = new StudentCampPage(getUserID(), getEmail(), getName(), getFaculty());
         campPage.runPage();
     }
-    private void openMyEnquiries() throws PageTerminatedException {
-        //view edit delete
-        //for student
-    }
-
-    private void openCampCommitteePage() throws  PageTerminatedException, IOException, CsvException {
+    private void openCampCommitteePage() throws  PageTerminatedException {
         CampCommitteePage campCommitteePage = new CampCommitteePage(getUserID(), getEmail(), getName(), getFaculty(), getCommitteeStatus());
         campCommitteePage.runPage();
     }

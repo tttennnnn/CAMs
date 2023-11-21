@@ -1,21 +1,22 @@
 package camp.convo;
 
 import app.CAMsApp;
-import com.opencsv.CSVReader;
-import com.opencsv.exceptions.CsvException;
 import org.apache.commons.lang3.ArrayUtils;
 import util.AppUtil;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 public class Suggestion extends Message {
-    public Suggestion(String owner, String content) {
+    private Suggestion(String owner, String content) {
         super(owner, content);
     }
+    public void editSuggestion(String content) { setContent(content); }
+    public static Suggestion createSuggestion(String owner, String content) {
+        return new Suggestion(owner, content);
+    }
 
-    public static String[] getSuggestionListAsStringArray(ArrayList<Suggestion> suggestions) {
+    private static String[] getSuggestionListAsStringArray(ArrayList<Suggestion> suggestions) {
         String[] res = new String[suggestions.size()];
         for (int i = 0; i < suggestions.size(); i++) {
             Suggestion suggestion = suggestions.get(i);
@@ -36,9 +37,8 @@ public class Suggestion extends Message {
         return res;
     }
 
-    public static void updateSuggestionsToFile(String campName, ArrayList<Suggestion> suggestions) throws IOException, CsvException {
-        CSVReader campSuggestionReader = AppUtil.getCSVReader(CAMsApp.getCampSuggestionFile());
-        List<String[]> suggestionLines = campSuggestionReader.readAll();
+    public static void updateSuggestionsToFile(String campName, ArrayList<Suggestion> suggestions) {
+        List<String[]> suggestionLines = AppUtil.getDataFromCSV(CAMsApp.getCampSuggestionFile());
         for (int row = 1; row < suggestionLines.size(); row++) {
             String[] suggestionLine = suggestionLines.get(row);
             if (suggestionLine[0].equals(campName)) {

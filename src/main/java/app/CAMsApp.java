@@ -1,7 +1,5 @@
 package app;
 
-import com.opencsv.CSVReader;
-import com.opencsv.exceptions.CsvException;
 import userpage.User;
 import userpage.staff.StaffMainPage;
 import userpage.student.StudentMainPage;
@@ -10,7 +8,7 @@ import util.AppUtil;
 import util.UserList;
 import util.exceptions.PageTerminatedException;
 
-import java.io.*;
+import java.util.List;
 import java.util.Scanner;
 
 public class CAMsApp {
@@ -32,7 +30,7 @@ public class CAMsApp {
     public static String getCampEnquiryFile() { return CAMP_ENQUIRY_FILE; }
     public static String getCampSuggestionFile() { return CAMP_SUGGESTION_FILE; }
 
-    public static void main(String[] args) throws IOException, CsvException {
+    public static void main(String[] args) {
         System.out.println("========== CAMs Login Page ==========");
 
         // login page
@@ -70,11 +68,10 @@ public class CAMsApp {
         }
 
     }
-    private static boolean userLogin(String id, String key) throws IOException, CsvException {
-        CSVReader csvReader = AppUtil.getCSVReader(KEY_FILE, 1);
-
-        String[] line;
-        while ((line = csvReader.readNext()) != null) {
+    private static boolean userLogin(String id, String key) {
+        List<String[]> lines = AppUtil.getDataFromCSV(KEY_FILE);
+        for (int row = 1; row < lines.size(); row++) {
+            String[] line = lines.get(row);
             if (!id.equals(line[0]))
                 continue;
             if (line[1].isEmpty())
@@ -82,7 +79,6 @@ public class CAMsApp {
             else
                 return key.equals(line[1]);
         }
-        csvReader.close();
         return false;
     }
 }

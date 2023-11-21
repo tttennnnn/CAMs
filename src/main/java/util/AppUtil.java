@@ -15,76 +15,92 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.util.*;
 
 public class AppUtil {
 
     public static String sha256(String s) { return DigestUtils.sha256Hex(s); }
-    public static FileReader getFileReader(String fileName) throws FileNotFoundException {
-        return new FileReader(fileName);
+    private static FileWriter getFileWriter(String fileName) {
+        FileWriter fileWriter = null;
+        try {
+            fileWriter = new FileWriter(fileName);
+        } catch (IOException e) {
+            System.out.println("Error: \"" + fileName + "\". (AppUtil.getFileWriter)");
+            System.exit(1);
+        }
+        return fileWriter;
     }
-    public static FileWriter getFileWriter(String fileName) throws IOException {
-        return new FileWriter(fileName);
+    public static void overwriteTXT(String fileName, List<String> lines) {
+        FileWriter fileWriter = AppUtil.getFileWriter(fileName);
+        try {
+            for (String line : lines) {
+                fileWriter.write(line + "\n");
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.exit(1);
+        }
     }
-    public static CSVReader getCSVReader(String fileName) throws IOException {
-        return new CSVReaderBuilder(getFileReader(fileName)).build();
+    public static void overwriteCSV(String fileName, List<String[]> data) {
+        CSVWriter csvWriter = new CSVWriter(AppUtil.getFileWriter(fileName));
+        csvWriter.writeAll(data);
+        try {
+            csvWriter.flush();
+            csvWriter.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.exit(1);
+        }
     }
-    public static CSVReader getCSVReader(String fileName, int n) throws IOException {
-        return new CSVReaderBuilder(getFileReader(fileName))
-            .withSkipLines(n).build();
-    }
-    public static void overwriteCSV(String fileName, List<String[]> newData) throws IOException {
-//        CSVWriter csvWriter = new CSVWriter(getFileWriter(fileName),
-//                                            CSVWriter.DEFAULT_SEPARATOR,
-//                                            CSVWriter.NO_QUOTE_CHARACTER,
-//                                            CSVWriter.DEFAULT_ESCAPE_CHARACTER,
-//                                            CSVWriter.DEFAULT_LINE_END);
-        CSVWriter csvWriter = new CSVWriter(getFileWriter(fileName));
-        csvWriter.writeAll(newData);
-        csvWriter.flush();
-        csvWriter.close();
+    public static List<String[]> getDataFromCSV(String fileName) {
+        FileReader fileReader = null;
+        try {
+            fileReader = new FileReader(fileName);
+        } catch (FileNotFoundException e) {
+            System.out.println("Error: \"" + fileName + "\" not found. (AppUtil.getFileReader)");
+            System.exit(1);
+        }
+
+        CSVReader csvReader = new CSVReaderBuilder(fileReader).build();
+        List<String[]> lines = null;
+        try {
+            lines = csvReader.readAll();
+            csvReader.close();
+        } catch (IOException | CsvException e) {
+            e.printStackTrace();
+            System.exit(1);
+        }
+        return lines;
     }
     public static void printSectionLine() {
         String sectionLine = String.join("", Collections.nCopies(30, "="));
         System.out.println(sectionLine);
     }
 
-    public static UserList readUsers() throws IOException, CsvException {
-        CSVReader csvReader = AppUtil.getCSVReader(CAMsApp.getUserFile(), 1);
-
-        List<String[]> lines = csvReader.readAll();
-        csvReader.close();
-
+    public static UserList readUsers() {
+        List<String[]> lines = AppUtil.getDataFromCSV(CAMsApp.getUserFile());
         UserList userList = new UserList();
-        for (String[] line : lines) {
+        for (int row = 1; row < lines.size(); row++) {
+            String[] line = lines.get(row);
             String id = line[0].split("@")[0];
             if (line[3].equals("1"))
                 userList.putStudent(id, new User(id, line[0], line[1], Faculty.valueOf(line[2])));
             else if (line[3].equals("2"))
                 userList.putStaff(id, new User(id, line[0], line[1], Faculty.valueOf(line[2])));
         }
-
         return userList;
     }
-    public static CampList readCamps() throws IOException, CsvException {
-        CSVReader campInfoReader = AppUtil.getCSVReader(CAMsApp.getCampInfoFile(), 1);
-        CSVReader campSlotReader = AppUtil.getCSVReader(CAMsApp.getCampSlotFile(), 1);
-        CSVReader campDateReader = AppUtil.getCSVReader(CAMsApp.getCampDateFile(), 1);
-        CSVReader campEnquiryReader = AppUtil.getCSVReader(CAMsApp.getCampEnquiryFile(), 1);
-        CSVReader campSuggestionReader = AppUtil.getCSVReader(CAMsApp.getCampSuggestionFile(), 1);
-
-        List<String[]> infoLines = campInfoReader.readAll();
-        List<String[]> slotLines = campSlotReader.readAll();
-        List<String[]> dateLines = campDateReader.readAll();
-        List<String[]> enquiryLines = campEnquiryReader.readAll();
-        List<String[]> suggestionLines = campSuggestionReader.readAll();
-
-        campInfoReader.close(); campSlotReader.close(); campDateReader.close();
+    public static CampList readCamps() {
+        List<String[]> infoLines = AppUtil.getDataFromCSV(CAMsApp.getCampInfoFile());
+        List<String[]> slotLines = AppUtil.getDataFromCSV(CAMsApp.getCampSlotFile());
+        List<String[]> dateLines = AppUtil.getDataFromCSV(CAMsApp.getCampDateFile());
+        List<String[]> enquiryLines = AppUtil.getDataFromCSV(CAMsApp.getCampEnquiryFile());
+        List<String[]> suggestionLines = AppUtil.getDataFromCSV(CAMsApp.getCampSuggestionFile());
 
         // read from camps.csv
         CampList campList = new CampList();
-        for (String[] infoLine : infoLines) {
+        for (int row = 1; row < infoLines.size(); row++) {
+            String[] infoLine = infoLines.get(row);
             String campName = infoLine[0];
             String staffID = infoLine[1];
             String description = infoLine[2];
@@ -99,7 +115,8 @@ public class AppUtil {
         }
 
         // read from slots.csv
-        for (String[] slotLine : slotLines) {
+        for (int row = 1; row < slotLines.size(); row++) {
+            String[] slotLine = slotLines.get(row);
             CampSlot campSlot = new CampSlot(
                 Integer.parseInt(slotLine[1]),
                 CampSlot.getAttendeeListAsSet(slotLine[2]),
@@ -110,7 +127,8 @@ public class AppUtil {
         }
 
         // read from dates.csv
-        for (String[] dateLine : dateLines) {
+        for (int row = 1; row < dateLines.size(); row++) {
+            String[] dateLine = dateLines.get(row);
             CampDates campDates = new CampDates(
                 CampDates.getDateAsLocalDate(dateLine[1]),
                 CampDates.getDateAsLocalDate(dateLine[2]),
@@ -120,7 +138,8 @@ public class AppUtil {
         }
 
         // read from enquiries.csv
-        for (String[] enquiryLine : enquiryLines) {
+        for (int row = 1; row < enquiryLines.size(); row++) {
+            String[] enquiryLine = enquiryLines.get(row);
             ArrayList<Enquiry> enquiries = Enquiry.getEnquiryListAsArrayList(
                 Arrays.copyOfRange(enquiryLine, 1, enquiryLine.length)
             );
@@ -128,7 +147,8 @@ public class AppUtil {
         }
 
         // read from suggestions.csv
-        for (String[] suggestionLine : suggestionLines) {
+        for (int row = 1; row < suggestionLines.size(); row++) {
+            String[] suggestionLine = suggestionLines.get(row);
             ArrayList<Suggestion> suggestions = Suggestion.getSuggestionListAsArrayList(
                 Arrays.copyOfRange(suggestionLine, 1, suggestionLine.length)
             );
