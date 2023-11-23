@@ -214,13 +214,13 @@ public class StaffCampCreatorPage extends User implements CampAttendant, Applica
         SuggestionListManager suggestions = campList.getCamp(campName).getSuggestionManager();
 
         System.out.println("*** Only unprocessed suggestions are shown. ***");
-        System.out.printf("%-10s | %s\n",
-            "Index", "Suggestion"
+        System.out.printf("%-10s | %-10s | %s\n",
+            "Index", "Committee", "Suggestion"
         );
 
         for (int index = 0; index < suggestions.size(); index++) {
-            System.out.printf("%-10s | %s\n",
-                index, suggestions.getContent(index)
+            System.out.printf("%-10s | %-10s | %s\n",
+                index, suggestions.getOwner(index), suggestions.getContent(index)
             );
         }
     }
