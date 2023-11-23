@@ -1,15 +1,8 @@
-# CAMs - SC2002 Assignment 
-
-- campManager
-- add interface for campPage
-- give updateToFile interface
-- refactor apputil
-
-*** delete imported but unused
-
-- report format
-- add point to committee if suggestion accepted
-- make interface/abstract for common studentpage and staffpage 
+# CAMs - SC2002 Assignment
+ 
+- jar in out dir
 - resource files (./data/*) should be put in the same dir as jar
-- report files (./report/*)
-- each user's userID must be unique
+- report files (./report_by_\*/*.txt)
+
+### problems
+- a few classes that are very large (CampManager and CampSlotsManager)
