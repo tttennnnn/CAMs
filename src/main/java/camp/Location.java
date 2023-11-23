@@ -1,9 +1,10 @@
 package camp;
 
 public enum Location {
-    LocationA,
-    LocationB,
-    LocationC,
-    LocationD,
-    LocationE
+    LOCATION_A,
+    LOCATION_B,
+    LOCATION_C,
+    LOCATION_D,
+    LOCATION_E,
+    LOCATION_F
 }

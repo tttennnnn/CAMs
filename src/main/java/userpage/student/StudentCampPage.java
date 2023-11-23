@@ -1,11 +1,15 @@
 package userpage.student;
 
 import camp.*;
-import camp.convo.Enquiry;
+import camp.chat.EnquiryListManager;
+import camp.dates.CampDatesFormatter;
+import camp.slots.CampSlotsManager;
 import userpage.ApplicationPage;
+import userpage.ViewerOfCampInfo;
+import userpage.ViewerOfSomeCamps;
 import userpage.User;
 import util.AppUtil;
-import util.CampList;
+import camp.CampList;
 import util.exceptions.InvalidUserInputException;
 import util.exceptions.PageTerminatedException;
 
@@ -14,7 +18,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Scanner;
 
-public class StudentCampPage extends User implements ApplicationPage {
+public class StudentCampPage extends User implements ApplicationPage, ViewerOfCampInfo, ViewerOfSomeCamps {
 
     public StudentCampPage(String userID, String email, String name, Faculty faculty) {
         super(userID, email, name, faculty);
@@ -23,65 +27,26 @@ public class StudentCampPage extends User implements ApplicationPage {
     @Override
     public void runPage() throws PageTerminatedException {
         printHeader();
-
         Scanner sc = new Scanner(System.in);
         String input;
         while (true) {
             System.out.print("[Input]: ");
             input = sc.nextLine();
-            switch (input) {
-                case ("1"):
-                    showUsage();
-                    break;
-                case ("2"):
-                    try {
-                        showCamps();
-                    } catch (InvalidUserInputException e) {
-                        System.out.println(e.getMessage());
-                    }
-                    break;
-                case ("3"):
-                    try {
-                        showCampDetail();
-                    } catch (InvalidUserInputException e) {
-                        System.out.println(e.getMessage());
-                    }
-                    break;
-                case ("4"):
-                    try {
-                        register();
-                    } catch (InvalidUserInputException e) {
-                        System.out.println(e.getMessage());
-                    }
-                    break;
-                case ("5"):
-                    try {
-                        withdraw();
-                    } catch (InvalidUserInputException e) {
-                        System.out.println(e.getMessage());
-                    }
-                    break;
-                case ("6"):
-                    viewEnquiries();
-                    break;
-                case ("7"):
-                    try {
-                        changeEnquiries();
-                    } catch (InvalidUserInputException e) {
-                        System.out.println(e.getMessage());
-                    }
-                    break;
-                case ("8"):
-                    try {
-                        submitEnquiry();
-                    } catch (InvalidUserInputException e) {
-                        System.out.println(e.getMessage());
-                    }
-                    break;
-                case ("9"):
-                    throw new PageTerminatedException();
-                default:
-                    System.out.println("Invalid input.");
+            try {
+                switch (input) {
+                    case ("1") -> showUsage();
+                    case ("2") -> showCamps();
+                    case ("3") -> showCampDetail();
+                    case ("4") -> register();
+                    case ("5") -> withdraw();
+                    case ("6") -> viewEnquiries();
+                    case ("7") -> changeEnquiries();
+                    case ("8") -> submitEnquiry();
+                    case ("9") -> throw new PageTerminatedException();
+                    default -> System.out.println("Invalid input.");
+                }
+            } catch (InvalidUserInputException e) {
+                System.out.println(e.getMessage());
             }
         }
     }
@@ -100,15 +65,16 @@ public class StudentCampPage extends User implements ApplicationPage {
         System.out.println("\t1. View usage");
         System.out.println("\t2. View camps");
         System.out.println("\t3. View additional camp info");
-        System.out.println("\t4. Register for a camp");
-        System.out.println("\t5. Withdraw from a camp");
+        System.out.println("\t4. Register for camp");
+        System.out.println("\t5. Withdraw from camp");
         System.out.println("\t6. View my enquiries");
-        System.out.println("\t7. Edit/Delete an enquiry");
-        System.out.println("\t8. Submit an enquiry");
+        System.out.println("\t7. Edit/Delete enquiry");
+        System.out.println("\t8. Submit enquiry");
         System.out.println("\t9. Return to previous page");
     }
 
-    private void showCamps() throws InvalidUserInputException {
+    @Override
+    public void showCamps() throws InvalidUserInputException {
         System.out.print("Choose filter type [all, location, date]: ");
         Scanner sc = new Scanner(System.in);
         String filterType = sc.nextLine();
@@ -119,7 +85,7 @@ public class StudentCampPage extends User implements ApplicationPage {
             case ("all"):
                 break;
             case ("location"):
-                System.out.print("Enter location " + Arrays.asList(Location.values()) + ": ");
+                System.out.print("Choose location " + Arrays.asList(Location.values()) + ": ");
                 filter = sc.nextLine();
                 try {
                     Location.valueOf(filter);
@@ -131,9 +97,9 @@ public class StudentCampPage extends User implements ApplicationPage {
                 System.out.println("Enter date for camps to contain [y/m/d]: ");
                 filter = sc.nextLine();
                 try {
-                    CampDates.getDateAsLocalDate(filter);
-                } catch (NumberFormatException e) {
-                    throw new InvalidUserInputException("Invalid date.");
+                    CampDatesFormatter.getDateAsLocalDate(filter);
+                } catch (IllegalArgumentException e) {
+                    throw new InvalidUserInputException(e.getMessage());
                 }
                 break;
             default:
@@ -142,8 +108,8 @@ public class StudentCampPage extends User implements ApplicationPage {
 
         //add camps according to filters
         CampList campList = getVisibleCampList();
-        ArrayList<Camp> filteredCamps = new ArrayList<>();
-        for (Camp camp : campList.getSortedCampSet()) {
+        ArrayList<CampManager> filteredCamps = new ArrayList<>();
+        for (CampManager camp : campList.getSortedCampSet()) {
             switch (filterType) {
                 case ("all"):
                     filteredCamps.add(camp);
@@ -153,7 +119,7 @@ public class StudentCampPage extends User implements ApplicationPage {
                         filteredCamps.add(camp);
                     break;
                 case ("date"):
-                    if (camp.containsDate(CampDates.getDateAsLocalDate(filter)))
+                    if (camp.getDatesManager().containsDate(CampDatesFormatter.getDateAsLocalDate(filter)))
                         filteredCamps.add(camp);
                     break;
             }
@@ -162,18 +128,19 @@ public class StudentCampPage extends User implements ApplicationPage {
         System.out.printf("%-10s | %-10s | %-15s | %-10s | %-10s | %-10s\n",
             "Name", "TotalSlot", "CommitteeSlot", "Location", "Faculty", "Status"
         );
-        for (Camp camp : filteredCamps) {
+        for (CampManager camp : filteredCamps) {
             System.out.printf("%-10s | %-10s | %-15s | %-10s | %-10s | %-10s\n",
                 camp.getName(),
-                camp.getTotalSlotAsString(),
-                camp.getCommitteeSlotAsString(),
+                camp.getSlotsManager().getTotalSlotAsString(),
+                camp.getSlotsManager().getCommitteeSlotAsString(),
                 camp.getLocation(),
                 camp.getFaculty(),
-                camp.getCampStatus(getUserID())
+                camp.getSlotsManager().getUserRole(getUserID())
             );
         }
     }
-    private void showCampDetail() throws InvalidUserInputException {
+    @Override
+    public void showCampDetail() throws InvalidUserInputException {
         System.out.print("Enter camp name: ");
         Scanner sc = new Scanner(System.in);
         String campName = sc.nextLine();
@@ -182,16 +149,16 @@ public class StudentCampPage extends User implements ApplicationPage {
         if (!campList.hasCamp(campName))
             throw new InvalidUserInputException("Invalid camp name.");
 
-        Camp camp = campList.getCamp(campName);
+        CampManager camp = campList.getCamp(campName);
 
         System.out.printf("%-10s | %-15s | %-15s | %-20s | Description\n",
             "Name", "StartDate", "EndDate", "RegistrationDeadline"
         );
         System.out.printf("%-10s | %-15s | %-15s | %-20s | %s\n",
             camp.getName(),
-            CampDates.getDateAsString(camp.getCampDates().getStartDate()),
-            CampDates.getDateAsString(camp.getCampDates().getEndDate()),
-            CampDates.getDateAsString(camp.getCampDates().getRegistrationDeadline()),
+            CampDatesFormatter.getDateAsString(camp.getDatesManager().getStartDate()),
+            CampDatesFormatter.getDateAsString(camp.getDatesManager().getEndDate()),
+            CampDatesFormatter.getDateAsString(camp.getDatesManager().getRegistrationDeadline()),
             camp.getDescription()
         );
     }
@@ -210,41 +177,42 @@ public class StudentCampPage extends User implements ApplicationPage {
         if (!campList.hasCamp(campName))
             throw new InvalidUserInputException("Invalid camp name.");
 
-        Camp camp = campList.getCamp(campName);
+        CampManager camp = campList.getCamp(campName);
         // check registration deadline
-        if (LocalDate.now().isAfter(camp.getCampDates().getRegistrationDeadline()))
+        if (LocalDate.now().isAfter(camp.getDatesManager().getRegistrationDeadline()))
             throw new InvalidUserInputException("It is past the registration deadline.");
         // check withdrawals
-        if (camp.hasWithdrawn(getUserID()))
+        if (camp.getSlotsManager().hasWithdrawn(getUserID()))
             throw new InvalidUserInputException("You have already withdrawn from this camp.");
         // check time clashes
-        for (Camp registeredCamp : getRegisteredCampList().getSortedCampSet()) {
-            if (registeredCamp.hasTimeClash(camp))
+        for (CampManager registeredCamp : getRegisteredCampList().getSortedCampSet()) {
+            if (registeredCamp.getDatesManager().hasTimeClash(camp.getDatesManager()))
                 throw new InvalidUserInputException("Time clashes with " + registeredCamp.getName());
         }
 
         System.out.print("Enter role [Attendee, Committee]: ");
         String role = sc.nextLine();
+        CampSlotsManager slotsManager = camp.getSlotsManager();
         switch (role) {
             case ("Attendee"):
-                if (camp.getTotalVacancy() == 0)
+                if (slotsManager.getTotalVacancy() == 0)
                     throw new InvalidUserInputException("Camp is full.");
-                camp.addAttendee(getUserID());
+                slotsManager.addAttendee(getUserID());
                 break;
             case ("Committee"):
-                if (camp.getTotalVacancy() == 0 || camp.getCommitteeVacancy() == 0)
+                if (slotsManager.getTotalVacancy() == 0 || slotsManager.getCommitteeVacancy() == 0)
                     throw new InvalidUserInputException("Camp is full.");
 
-                String committeeStatus = StudentMainPage.getCommitteeStatusForUser(getUserID());
+                String committeeStatus = CampSlotsManager.getUserCommitteeStatus(getUserID());
                 if (!committeeStatus.equals("-"))
                     throw new InvalidUserInputException("You are already registered as a committee for camp: " + committeeStatus);
-                camp.addCommittee(getUserID(), 0);
+                slotsManager.addCommittee(getUserID(), 0);
                 break;
             default:
                 throw new InvalidUserInputException("Invalid role.");
         }
 
-        CampSlot.updateCampSlotToFile(campName, camp.getCampSlot());
+        slotsManager.updateToFile(campName);
         System.out.println("Registered as " + role);
     }
     private void withdraw() throws InvalidUserInputException {
@@ -256,34 +224,33 @@ public class StudentCampPage extends User implements ApplicationPage {
         if (!campList.hasCamp(campName))
             throw new InvalidUserInputException("Invalid camp name.");
 
-        Camp camp = campList.getCamp(campName);
-        if (camp.getCampSlot().getAttendees().contains(getUserID()))
-            camp.getCampSlot().getAttendees().remove(getUserID());
+        CampManager camp = campList.getCamp(campName);
+        CampSlotsManager slotsManager = camp.getSlotsManager();
+        if (slotsManager.hasAttendee(getUserID()))
+            slotsManager.removeAttendee(getUserID());
         else
             throw new InvalidUserInputException("Cannot withdraw from camp committee role.");
 
         // add to withdrawal list
-        camp.getCampSlot().getWithdrawns().add(getUserID());
+        slotsManager.addWithdrawn(getUserID());
 
-        CampSlot.updateCampSlotToFile(campName, camp.getCampSlot());
+        slotsManager.updateToFile(campName);
         System.out.println("Withdrawn from " + camp.getName());
     }
     private void viewEnquiries() {
         System.out.printf("%-10s | %-10s | %-30s | %s\n",
             "Index", "Camp", "Enquiry", "Response"
         );
-
         CampList campList = getVisibleCampList();
         int index = 0;
-        for (Camp camp : campList.getSortedCampSet()) {
-            for (Enquiry enquiry : camp.getEnquiries()) {
-                if (enquiry.getQuestion().getOwner().equals(getUserID())) {
-                    String response = (enquiry.isProcessed()) ? enquiry.getAnswer().getContent() : "-";
-                    System.out.printf("%-10s | %-10s | %-30s | %s\n",
-                        index, camp.getName(), enquiry.getQuestion().getContent(), response
-                    );
-                    index++;
-                }
+        for (CampManager camp : campList.getSortedCampSet()) {
+            EnquiryListManager enquiries = camp.getEnquiryManager();
+            enquiries = enquiries.getListManagerOfOwner(getUserID());
+            for (int i = 0; i < enquiries.size(); i++) {
+                String response = (enquiries.isProcessed(i)) ? enquiries.getAnswerContent(i) : "-";
+                System.out.printf("%-10s | %-10s | %-30s | %s\n",
+                    index++, camp.getName(), enquiries.getQuestionContent(i), response
+                );
             }
         }
     }
@@ -305,41 +272,39 @@ public class StudentCampPage extends User implements ApplicationPage {
         }
 
         String campName = null;
-        int i = 0;
-        for (Camp camp : campList.getSortedCampSet()) {
+        int realIndex = 0;
+        for (CampManager camp : campList.getSortedCampSet()) {
             if (campName != null)
                 break;
-
-            ArrayList<Enquiry> enquiries = camp.getEnquiries();
-            for (i = 0; i < enquiries.size(); i++) {
-                if (enquiries.get(i).getQuestion().getOwner().equals(getUserID())) {
-                    if (index == 0) {
+            EnquiryListManager enquiries = camp.getEnquiryManager();
+            for (realIndex = 0; realIndex < enquiries.size(); realIndex++) {
+                if (enquiries.getQuestionOwner(realIndex).equals(getUserID())) {
+                    if (index-- == 0) {
                         campName = camp.getName();
                         break;
                     }
-                    index--;
                 }
             }
         }
+
         if (campName == null)
             throw new InvalidUserInputException("Invalid index.");
 
-        ArrayList<Enquiry> enquiries = campList.getCamp(campName).getEnquiries();
+        EnquiryListManager enquiries = campList.getCamp(campName).getEnquiryManager();
 
         // if enquiry is processed -> cannot edit/delete
-        if (enquiries.get(i).isProcessed())
+        if (enquiries.isProcessed(realIndex))
             throw new InvalidUserInputException("This enquiry is already processed.");
 
         if (action.equals("edit")) {
-            Enquiry enquiry = enquiries.get(i);
             System.out.print("Enter new enquiry: ");
-            enquiry.editQuestion(sc.nextLine());
+            enquiries.editQuestion(realIndex, sc.nextLine());
         } else {
-            enquiries.remove(i);
+            enquiries.removeEnquiry(realIndex);
         }
 
         // writ to csv
-        Enquiry.updateEnquiriesToFile(campName, enquiries);
+        enquiries.updateToFile(campName);
         if (action.equals("edit"))
             System.out.println("Enquiry updated.");
         else
@@ -354,17 +319,18 @@ public class StudentCampPage extends User implements ApplicationPage {
         if (!campList.hasCamp(campName))
             throw new InvalidUserInputException("Invalid camp name.");
 
-        ArrayList<Enquiry> enquiries = campList.getCamp(campName).getEnquiries();
+        EnquiryListManager enquiries = campList.getCamp(campName).getEnquiryManager();
         System.out.print("Enter new enquiry: ");
-        enquiries.add(Enquiry.createEnquiry(getUserID(), sc.nextLine()));
+        enquiries.addEnquiry(getUserID(), sc.nextLine());
 
-        Enquiry.updateEnquiriesToFile(campName, enquiries);
+        enquiries.updateToFile(campName);
         System.out.println("Enquiry submitted.");
     }
-    private CampList getVisibleCampList() {
+    @Override
+    public CampList getVisibleCampList() {
         CampList campList = AppUtil.readCamps();
         CampList visibleCampList = new CampList();
-        for (Camp camp : campList.getSortedCampSet()) {
+        for (CampManager camp : campList.getSortedCampSet()) {
             if (!camp.getVisibility())
                 continue;
             if (camp.getFaculty() != Faculty.NTU && camp.getFaculty() != getFaculty())
@@ -376,9 +342,9 @@ public class StudentCampPage extends User implements ApplicationPage {
     private CampList getRegisteredCampList() {
         CampList campList = AppUtil.readCamps();
         CampList registeredCampList = new CampList();
-        for (Camp camp : campList.getSortedCampSet()) {
-            if (!camp.getCampSlot().getAttendees().contains(getUserID()) &&
-                !camp.getCampSlot().getCommittees().containsKey(getUserID()))
+        for (CampManager camp : campList.getSortedCampSet()) {
+            if (!camp.getSlotsManager().hasAttendee(getUserID()) &&
+                !camp.getSlotsManager().hasCommittee(getUserID()))
                 continue;
             registeredCampList.putCamp(camp.getName(), camp);
         }

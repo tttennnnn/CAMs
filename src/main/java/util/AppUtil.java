@@ -2,8 +2,12 @@ package util;
 
 import app.CAMsApp;
 import camp.*;
-import camp.convo.Enquiry;
-import camp.convo.Suggestion;
+import camp.chat.EnquiryListManager;
+import camp.chat.SuggestionListManager;
+import camp.dates.CampDatesFormatter;
+import camp.dates.CampDatesManager;
+import camp.slots.CampSlotsFormatter;
+import camp.slots.CampSlotsManager;
 import com.opencsv.CSVReader;
 import com.opencsv.CSVReaderBuilder;
 import com.opencsv.CSVWriter;
@@ -36,6 +40,7 @@ public class AppUtil {
             for (String line : lines) {
                 fileWriter.write(line + "\n");
             }
+            fileWriter.close();
         } catch (IOException e) {
             e.printStackTrace();
             System.exit(1);
@@ -76,7 +81,6 @@ public class AppUtil {
         String sectionLine = String.join("", Collections.nCopies(30, "="));
         System.out.println(sectionLine);
     }
-
     public static UserList readUsers() {
         List<String[]> lines = AppUtil.getDataFromCSV(CAMsApp.getUserFile());
         UserList userList = new UserList();
@@ -110,38 +114,43 @@ public class AppUtil {
 
             campList.putCamp(
                 campName,
-                new Camp(campName, staffID, description, visibility, faculty, location, null, null, null, null)
+                CampManager.createInstance(
+                    campName, staffID, description, visibility, faculty, location
+                )
             );
         }
 
         // read from slots.csv
         for (int row = 1; row < slotLines.size(); row++) {
             String[] slotLine = slotLines.get(row);
-            CampSlot campSlot = new CampSlot(
+            CampSlotsManager campSlots = CampSlotsManager.createInstance(
                 Integer.parseInt(slotLine[1]),
-                CampSlot.getAttendeeListAsSet(slotLine[2]),
-                CampSlot.getCommitteeListAsMap(slotLine[3]),
-                CampSlot.getWithdrawnListAsSet(slotLine[4])
+                Integer.parseInt(slotLine[2]),
+                CampSlotsFormatter.getAttendeeListAsSet(slotLine[3]),
+                CampSlotsFormatter.getCommitteeListAsMap(slotLine[4]),
+                CampSlotsFormatter.getWithdrawnListAsSet(slotLine[5])
             );
-            campList.getCamp(slotLine[0]).setCampSlot(campSlot);
+            campList.getCamp(slotLine[0]).setCampSlots(campSlots);
         }
 
         // read from dates.csv
         for (int row = 1; row < dateLines.size(); row++) {
             String[] dateLine = dateLines.get(row);
-            CampDates campDates = new CampDates(
-                CampDates.getDateAsLocalDate(dateLine[1]),
-                CampDates.getDateAsLocalDate(dateLine[2]),
-                CampDates.getDateAsLocalDate(dateLine[3])
+            CampDatesManager campDates = CampDatesManager.createInstance(
+                CampDatesFormatter.getDateAsLocalDate(dateLine[1]),
+                CampDatesFormatter.getDateAsLocalDate(dateLine[2]),
+                CampDatesFormatter.getDateAsLocalDate(dateLine[3])
             );
-            campList.getCamp(dateLine[0]).setDates(campDates);
+            campList.getCamp(dateLine[0]).setCampDates(campDates);
         }
 
         // read from enquiries.csv
         for (int row = 1; row < enquiryLines.size(); row++) {
             String[] enquiryLine = enquiryLines.get(row);
-            ArrayList<Enquiry> enquiries = Enquiry.getEnquiryListAsArrayList(
-                Arrays.copyOfRange(enquiryLine, 1, enquiryLine.length)
+            EnquiryListManager enquiries = EnquiryListManager.createInstance(
+                EnquiryListManager.getEnquiryListAsArrayList(
+                    Arrays.copyOfRange(enquiryLine, 1, enquiryLine.length)
+                )
             );
             campList.getCamp(enquiryLine[0]).setEnquiries(enquiries);
         }
@@ -149,8 +158,10 @@ public class AppUtil {
         // read from suggestions.csv
         for (int row = 1; row < suggestionLines.size(); row++) {
             String[] suggestionLine = suggestionLines.get(row);
-            ArrayList<Suggestion> suggestions = Suggestion.getSuggestionListAsArrayList(
-                Arrays.copyOfRange(suggestionLine, 1, suggestionLine.length)
+            SuggestionListManager suggestions = SuggestionListManager.createInstance(
+                SuggestionListManager.getSuggestionListAsArrayList(
+                    Arrays.copyOfRange(suggestionLine, 1, suggestionLine.length)
+                )
             );
             campList.getCamp(suggestionLine[0]).setSuggestions(suggestions);
         }
