@@ -3,7 +3,6 @@ package userpage.student;
 import camp.Faculty;
 import camp.slots.CampSlotsManager;
 import userpage.UserMainPage;
-import util.exceptions.InvalidUserInputException;
 import util.exceptions.PageTerminatedException;
 
 import java.util.Scanner;
