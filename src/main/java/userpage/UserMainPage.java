@@ -1,7 +1,7 @@
 package userpage;
 
 import app.CAMsApp;
-import camp.Faculty;
+import camp.meta.Faculty;
 import util.AppUtil;
 import util.exceptions.PageTerminatedException;
 

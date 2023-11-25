@@ -1,6 +1,6 @@
 package userpage;
 
-import camp.Faculty;
+import camp.meta.Faculty;
 
 public class User {
     private final String userID, email, name;

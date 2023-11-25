@@ -1,4 +1,4 @@
-package camp;
+package camp.meta;
 
 public enum Faculty {
     NTU, // include every faculty

@@ -3,6 +3,8 @@ package userpage.staff;
 import camp.*;
 import camp.dates.CampDatesFormatter;
 import camp.dates.CampDatesManager;
+import camp.meta.Faculty;
+import camp.meta.Location;
 import camp.slots.CampSlotsManager;
 import userpage.ViewerOfCampInfo;
 import userpage.ViewerOfSomeCamps;
@@ -122,7 +124,7 @@ public class StaffMainPage extends UserMainPage implements ViewerOfCampInfo, Vie
                     filteredCamps.add(camp);
                     break;
                 case ("location"):
-                    if (camp.getLocation().name().equals(filter))
+                    if (camp.getMetaDataManager().getLocation().name().equals(filter))
                         filteredCamps.add(camp);
                     break;
                 case ("date"):
@@ -140,10 +142,10 @@ public class StaffMainPage extends UserMainPage implements ViewerOfCampInfo, Vie
                 camp.getName(),
                 camp.getSlotsManager().getTotalSlotAsString(),
                 camp.getSlotsManager().getCommitteeSlotAsString(),
-                camp.getLocation(),
-                camp.getFaculty(),
-                (camp.getVisibility()) ? "T" : "F",
-                camp.getStaffID()
+                camp.getMetaDataManager().getLocation(),
+                camp.getMetaDataManager().getFaculty(),
+                (camp.getMetaDataManager().isVisible()) ? "T" : "F",
+                camp.getMetaDataManager().getStaffID()
             );
         }
     }
@@ -168,7 +170,7 @@ public class StaffMainPage extends UserMainPage implements ViewerOfCampInfo, Vie
             CampDatesFormatter.getDateAsString(datesManager.getStartDate()),
             CampDatesFormatter.getDateAsString(datesManager.getEndDate()),
             CampDatesFormatter.getDateAsString(datesManager.getRegistrationDeadline()),
-            camp.getDescription()
+            camp.getMetaDataManager().getDescription()
         );
     }
     private void createCamp() throws InvalidUserInputException {
@@ -269,7 +271,7 @@ public class StaffMainPage extends UserMainPage implements ViewerOfCampInfo, Vie
             startDate, endDate, registrationDeadline
         );
 
-        camp.updateToFile(campName);
+        camp.getMetaDataManager().updateToFile(campName);
         camp.getSlotsManager().updateToFile(campName);
         camp.getDatesManager().updateToFile(campName);
         camp.getEnquiryManager().updateToFile(campName);

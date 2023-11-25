@@ -1,6 +1,6 @@
 package userpage.student;
 
-import camp.Faculty;
+import camp.meta.Faculty;
 import camp.slots.CampSlotsManager;
 import userpage.UserMainPage;
 import util.exceptions.PageTerminatedException;
