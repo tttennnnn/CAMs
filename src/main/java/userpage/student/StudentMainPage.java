@@ -23,7 +23,13 @@ public class StudentMainPage extends UserMainPage {
             switch (input) {
                 case ("1") -> showUsage();
                 case ("2") -> showProfile();
-                case ("3") -> openCampPage();
+                case ("3") -> {
+                    try {
+                        openCampPage();
+                    } catch (PageTerminatedException e) {
+                        runPage();
+                    }
+                }
                 case ("4") -> {
                     // check committee status
                     if (CampSlotsManager.getUserCommitteeStatus(getUserID()).equals("-")) {

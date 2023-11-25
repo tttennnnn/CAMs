@@ -1,5 +1,5 @@
 "Name","StaffID","Description","Visibility","Faculty","Location"
-"A","Staff1","new desc","T","EEE","LOCATION_C"
+"A","Staff1","new description","T","EEE","LOCATION_C"
 "D","Staff1","-----","T","NTU","LOCATION_B"
 "E","Staff3","-----","F","EEE","LOCATION_C"
 "B","Staff2","-----","T","EEE","LOCATION_D"
