@@ -53,7 +53,10 @@ public class StaffMainPage extends UserMainPage implements ViewerOfCampInfo, Vie
                             runPage();
                         }
                     }
-                    case ("8") -> throw new PageTerminatedException();
+                    case ("8") -> {
+                        System.out.println("You have been logged out.");
+                        throw new PageTerminatedException();
+                    }
                     default -> System.out.println("Invalid input.");
                 }
             } catch (InvalidUserInputException e) {

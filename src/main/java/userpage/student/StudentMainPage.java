@@ -49,7 +49,10 @@ public class StudentMainPage extends UserMainPage {
                         runPage();
                     }
                 }
-                case ("6") -> throw new PageTerminatedException();
+                case ("6") -> {
+                    System.out.println("You have been logged out.");
+                    throw new PageTerminatedException();
+                }
                 default -> System.out.println("Invalid input.");
             }
         }
