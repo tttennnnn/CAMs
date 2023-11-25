@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.Scanner;
 
 public class StaffCampCreatorPage extends User implements CampAttendant, ApplicationPage, ViewerOfCampInfo, ViewerOfSomeCamps {
-    public StaffCampCreatorPage(String userID, String email, String name, Faculty faculty) {
+    StaffCampCreatorPage(String userID, String email, String name, Faculty faculty) {
         super(userID, email, name, faculty);
     }
     @Override

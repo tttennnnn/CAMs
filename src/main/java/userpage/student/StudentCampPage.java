@@ -21,9 +21,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Scanner;
 
-public class StudentCampPage extends User implements ApplicationPage, ViewerOfCampInfo, ViewerOfSomeCamps {
+class StudentCampPage extends User implements ApplicationPage, ViewerOfCampInfo, ViewerOfSomeCamps {
 
-    public StudentCampPage(String userID, String email, String name, Faculty faculty) {
+    StudentCampPage(String userID, String email, String name, Faculty faculty) {
         super(userID, email, name, faculty);
     }
 

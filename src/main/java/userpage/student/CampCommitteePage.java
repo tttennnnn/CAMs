@@ -20,7 +20,7 @@ import java.util.Scanner;
 
 public class CampCommitteePage extends User implements CampAttendant, ApplicationPage, ViewerOfSomeCamps {
     private final String myCampName;
-    public CampCommitteePage(String userID, String email, String name, Faculty faculty, String myCampName) {
+    CampCommitteePage(String userID, String email, String name, Faculty faculty, String myCampName) {
         super(userID, email, name, faculty);
         this.myCampName = myCampName;
     }
