@@ -81,7 +81,7 @@ public class AppUtil {
         return lines;
     }
     public static void printSectionLine() {
-        String sectionLine = String.join("", Collections.nCopies(30, "="));
+        String sectionLine = String.join("", Collections.nCopies(55, "="));
         System.out.println(sectionLine);
     }
     public static UserList readUsers() {
