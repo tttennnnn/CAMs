@@ -1,4 +1,4 @@
-package camp;
+package camp.meta;
 
 public enum Location {
     LOCATION_A,

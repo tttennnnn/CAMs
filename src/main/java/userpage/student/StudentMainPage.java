@@ -1,6 +1,6 @@
 package userpage.student;
 
-import camp.Faculty;
+import camp.meta.Faculty;
 import camp.slots.CampSlotsManager;
 import userpage.UserMainPage;
 import util.exceptions.PageTerminatedException;
@@ -23,7 +23,13 @@ public class StudentMainPage extends UserMainPage {
             switch (input) {
                 case ("1") -> showUsage();
                 case ("2") -> showProfile();
-                case ("3") -> openCampPage();
+                case ("3") -> {
+                    try {
+                        openCampPage();
+                    } catch (PageTerminatedException e) {
+                        runPage();
+                    }
+                }
                 case ("4") -> {
                     // check committee status
                     if (CampSlotsManager.getUserCommitteeStatus(getUserID()).equals("-")) {
@@ -43,7 +49,10 @@ public class StudentMainPage extends UserMainPage {
                         runPage();
                     }
                 }
-                case ("6") -> throw new PageTerminatedException();
+                case ("6") -> {
+                    System.out.println("You have been logged out.");
+                    throw new PageTerminatedException();
+                }
                 default -> System.out.println("Invalid input.");
             }
         }

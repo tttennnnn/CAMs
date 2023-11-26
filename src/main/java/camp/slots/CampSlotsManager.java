@@ -116,7 +116,7 @@ public class CampSlotsManager implements NormalTypeManager {
         if (committeeSlot < 1)
             throw new IllegalArgumentException("Camp committee slots must be at least 1");
         if (committeeSlot > CampSlots.getMaxCommitteeSlot())
-            throw new IllegalArgumentException("Camp committee slots must be less than " + CampSlots.getMaxCommitteeSlot());
+            throw new IllegalArgumentException("Camp committee slots must not be greater than " + CampSlots.getMaxCommitteeSlot());
         if (totalSlot <= committeeSlot) {
             throw new IllegalArgumentException("Total slots must be greater than Committee slots.");
         }

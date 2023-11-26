@@ -1,7 +1,7 @@
 package userpage.student;
 
 import camp.CampManager;
-import camp.Faculty;
+import camp.meta.Faculty;
 import camp.chat.EnquiryListManager;
 import camp.chat.SuggestionListManager;
 import camp.dates.CampDatesFormatter;
@@ -20,7 +20,7 @@ import java.util.Scanner;
 
 public class CampCommitteePage extends User implements CampAttendant, ApplicationPage, ViewerOfSomeCamps {
     private final String myCampName;
-    public CampCommitteePage(String userID, String email, String name, Faculty faculty, String myCampName) {
+    CampCommitteePage(String userID, String email, String name, Faculty faculty, String myCampName) {
         super(userID, email, name, faculty);
         this.myCampName = myCampName;
     }
@@ -226,7 +226,7 @@ public class CampCommitteePage extends User implements CampAttendant, Applicatio
         List<String> lines = new ArrayList<>();
         lines.add("| Camp Report | Filter: " + filter);
         lines.add("Name: " + myCamp.getName());
-        lines.add("Description: " + myCamp.getDescription());
+        lines.add("Description: " + myCamp.getMetaDataManager().getDescription());
         lines.add("Dates: " +
             CampDatesFormatter.getDateAsString(myCamp.getDatesManager().getStartDate()) +
             " - " +
@@ -235,8 +235,8 @@ public class CampCommitteePage extends User implements CampAttendant, Applicatio
         lines.add("Registration deadline: " +
             CampDatesFormatter.getDateAsString(myCamp.getDatesManager().getRegistrationDeadline())
         );
-        lines.add("Faculty: " + myCamp.getFaculty());
-        lines.add("Location: " + myCamp.getLocation());
+        lines.add("Faculty: " + myCamp.getMetaDataManager().getFaculty());
+        lines.add("Location: " + myCamp.getMetaDataManager().getLocation());
         lines.add("Total slot: " + myCamp.getSlotsManager().getTotalSlotAsString());
         lines.add("Committee slot: " + myCamp.getSlotsManager().getCommitteeSlotAsString());
 

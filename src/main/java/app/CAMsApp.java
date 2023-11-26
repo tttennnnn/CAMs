@@ -31,7 +31,16 @@ public class CAMsApp {
     public static String getCampSuggestionFile() { return CAMP_SUGGESTION_FILE; }
 
     public static void main(String[] args) {
-        System.out.println("========== CAMs Login Page ==========");
+        AppUtil.printSectionLine();
+        System.out.println("  .oooooo.         .o.       ooo        ooooo          \n" +
+                           " d8P'  `Y8b       .888.      `88.       .888'          \n" +
+                           "888              .8\"888.      888b     d'888   .oooo.o \n" +
+                           "888             .8' `888.     8 Y88. .P  888  d88(  \"8 \n" +
+                           "888            .88ooo8888.    8  `888'   888  `\"Y88b.  \n" +
+                           "`88b    ooo   .8'     `888.   8    Y     888  o.  )88b \n" +
+                           " `Y8bood8P'  o88o     o8888o o8o        o888o 8\"\"888P'");
+        AppUtil.printSectionLine();
+        System.out.println("Welcome to CAMs Login Page!");
 
         // login page
         Scanner sc = new Scanner(System.in);

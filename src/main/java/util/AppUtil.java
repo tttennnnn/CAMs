@@ -6,6 +6,9 @@ import camp.chat.EnquiryListManager;
 import camp.chat.SuggestionListManager;
 import camp.dates.CampDatesFormatter;
 import camp.dates.CampDatesManager;
+import camp.meta.Faculty;
+import camp.meta.Location;
+import camp.meta.MetaDataManager;
 import camp.slots.CampSlotsFormatter;
 import camp.slots.CampSlotsManager;
 import com.opencsv.CSVReader;
@@ -78,7 +81,7 @@ public class AppUtil {
         return lines;
     }
     public static void printSectionLine() {
-        String sectionLine = String.join("", Collections.nCopies(30, "="));
+        String sectionLine = String.join("", Collections.nCopies(55, "="));
         System.out.println(sectionLine);
     }
     public static UserList readUsers() {
@@ -111,12 +114,9 @@ public class AppUtil {
             boolean visibility = infoLine[3].equals("T");
             Faculty faculty = Faculty.valueOf(infoLine[4]);
             Location location = Location.valueOf(infoLine[5]);
-
-            campList.putCamp(
-                campName,
-                CampManager.createInstance(
-                    campName, staffID, description, visibility, faculty, location
-                )
+            campList.putCamp(campName, CampManager.createInstance(campName));
+            campList.getCamp(campName).setMetadataManager(
+                MetaDataManager.createInstance(staffID, description, visibility, faculty, location)
             );
         }
 
@@ -130,7 +130,7 @@ public class AppUtil {
                 CampSlotsFormatter.getCommitteeListAsMap(slotLine[4]),
                 CampSlotsFormatter.getWithdrawnListAsSet(slotLine[5])
             );
-            campList.getCamp(slotLine[0]).setCampSlots(campSlots);
+            campList.getCamp(slotLine[0]).setSlotsManager(campSlots);
         }
 
         // read from dates.csv
@@ -141,7 +141,7 @@ public class AppUtil {
                 CampDatesFormatter.getDateAsLocalDate(dateLine[2]),
                 CampDatesFormatter.getDateAsLocalDate(dateLine[3])
             );
-            campList.getCamp(dateLine[0]).setCampDates(campDates);
+            campList.getCamp(dateLine[0]).setDatesManager(campDates);
         }
 
         // read from enquiries.csv
@@ -152,7 +152,7 @@ public class AppUtil {
                     Arrays.copyOfRange(enquiryLine, 1, enquiryLine.length)
                 )
             );
-            campList.getCamp(enquiryLine[0]).setEnquiries(enquiries);
+            campList.getCamp(enquiryLine[0]).setEnquiryManager(enquiries);
         }
 
         // read from suggestions.csv
@@ -163,7 +163,7 @@ public class AppUtil {
                     Arrays.copyOfRange(suggestionLine, 1, suggestionLine.length)
                 )
             );
-            campList.getCamp(suggestionLine[0]).setSuggestions(suggestions);
+            campList.getCamp(suggestionLine[0]).setSuggestionManager(suggestions);
         }
 
         return campList;

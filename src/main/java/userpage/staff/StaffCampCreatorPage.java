@@ -1,12 +1,13 @@
 package userpage.staff;
 
 import camp.CampManager;
-import camp.Faculty;
+import camp.meta.Faculty;
 
-import camp.Location;
+import camp.meta.Location;
 import camp.chat.EnquiryListManager;
 import camp.chat.SuggestionListManager;
 import camp.dates.CampDatesFormatter;
+import camp.meta.MetaDataManager;
 import camp.slots.CampSlotsManager;
 import userpage.*;
 import util.AppUtil;
@@ -20,7 +21,7 @@ import java.util.List;
 import java.util.Scanner;
 
 public class StaffCampCreatorPage extends User implements CampAttendant, ApplicationPage, ViewerOfCampInfo, ViewerOfSomeCamps {
-    public StaffCampCreatorPage(String userID, String email, String name, Faculty faculty) {
+    StaffCampCreatorPage(String userID, String email, String name, Faculty faculty) {
         super(userID, email, name, faculty);
     }
     @Override
@@ -106,8 +107,8 @@ public class StaffCampCreatorPage extends User implements CampAttendant, Applica
             camp.getName(),
             camp.getSlotsManager().getTotalSlotAsString(),
             camp.getSlotsManager().getCommitteeSlotAsString(),
-            camp.getLocation(),
-            camp.getDescription()
+            camp.getMetaDataManager().getLocation(),
+            camp.getMetaDataManager().getDescription()
         );
     }
     private void editCampDetail() throws InvalidUserInputException {
@@ -140,34 +141,34 @@ public class StaffCampCreatorPage extends User implements CampAttendant, Applica
         }
 
         String newValue = sc.nextLine();
-        int slot;
-        try {
-            slot = Integer.parseInt(newValue);
-            switch (detail) {
-                case ("Location"):
-                    camp.setLocation(Location.valueOf(newValue));
-                    break;
-                case ("Description"):
-                    camp.setDescription(newValue);
-                    break;
+        if (detail.equals("Location") || detail.equals("Description")) {
+            try {
+                switch (detail) {
+                    case ("Location") -> camp.getMetaDataManager().setLocation(Location.valueOf(newValue));
+                    case ("Description") -> camp.getMetaDataManager().setDescription(newValue);
+                }
+            } catch (IllegalArgumentException e) {
+                throw new InvalidUserInputException("Invalid " + detail + ".");
             }
-        } catch (IllegalArgumentException e) {
-            throw new InvalidUserInputException("Invalid " + detail + ".");
-        }
-        try{
-            switch (detail) {
-                case ("TotalSlot"):
-                    CampSlotsManager.isValidSlots(slot, camp.getSlotsManager().getCommitteeSlot());
-                    camp.getSlotsManager().setTotalSlot(slot);
-                    break;
-                case ("CommitteeSlot"):
-                    CampSlotsManager.isValidSlots(camp.getSlotsManager().getTotalSlot(), slot);
-                    camp.getSlotsManager().setCommitteeSlot(slot);
-                    break;
+        } else {
+            try{
+                int slot = Integer.parseInt(newValue);
+                switch (detail) {
+                    case ("TotalSlot") -> {
+                        CampSlotsManager.isValidSlots(slot, camp.getSlotsManager().getCommitteeSlot());
+                        camp.getSlotsManager().setTotalSlot(slot);
+                    }
+                    case ("CommitteeSlot") -> {
+                        CampSlotsManager.isValidSlots(camp.getSlotsManager().getTotalSlot(), slot);
+                        camp.getSlotsManager().setCommitteeSlot(slot);
+                    }
+                }
+            } catch (IllegalArgumentException e) {
+                throw new InvalidUserInputException(e.getMessage());
             }
-        } catch (IllegalArgumentException e) {
-            throw new InvalidUserInputException(e.getMessage());
         }
+        camp.getMetaDataManager().updateToFile(campName);
+        camp.getSlotsManager().updateToFile(campName);
         System.out.println("Camp " + detail + " edited.");
     }
     private void toggleCampVisibility() throws InvalidUserInputException {
@@ -179,13 +180,14 @@ public class StaffCampCreatorPage extends User implements CampAttendant, Applica
         if (!campList.hasCamp(campName))
             throw new InvalidUserInputException("Invalid camp name.");
         CampManager camp = campList.getCamp(campName);
+        MetaDataManager metaData = camp.getMetaDataManager();
 
-        if (camp.getVisibility() && camp.getSlotsManager().isRegistered())
+        if (metaData.isVisible() && camp.getSlotsManager().isRegistered())
             throw new InvalidUserInputException("Visibility cannot be off - students are already registered.");
 
-        camp.toggleVisibility();
-        camp.updateToFile(camp.getName());
-        System.out.println("Camp: " + campName + " - visibility toggled to " + ((camp.getVisibility()) ? "T" : "F"));
+        metaData.toggleVisibility();
+        metaData.updateToFile(camp.getName());
+        System.out.println("Camp: " + campName + " - visibility toggled to " + ((metaData.isVisible()) ? "T" : "F"));
     }
     private void deleteCamp() throws InvalidUserInputException {
         System.out.print("Enter camp name: ");
@@ -351,9 +353,9 @@ public class StaffCampCreatorPage extends User implements CampAttendant, Applica
         List<String> lines = new ArrayList<>();
         lines.add("| Camp Report | Filter: " + filter);
         lines.add("Name: " + camp.getName());
-        lines.add("Creator: " + camp.getStaffID());
-        lines.add("Visibility: " + ((camp.getVisibility()) ? "T" : "F"));
-        lines.add("Description: " + camp.getDescription());
+        lines.add("Creator: " + camp.getMetaDataManager().getStaffID());
+        lines.add("Visibility: " + ((camp.getMetaDataManager().isVisible()) ? "T" : "F"));
+        lines.add("Description: " + camp.getMetaDataManager().getDescription());
         lines.add("Dates: " +
             CampDatesFormatter.getDateAsString(camp.getDatesManager().getStartDate()) +
             " - " +
@@ -362,8 +364,8 @@ public class StaffCampCreatorPage extends User implements CampAttendant, Applica
         lines.add("Registration deadline: " +
             CampDatesFormatter.getDateAsString(camp.getDatesManager().getRegistrationDeadline())
         );
-        lines.add("Faculty: " + camp.getFaculty());
-        lines.add("Location: " + camp.getLocation());
+        lines.add("Faculty: " + camp.getMetaDataManager().getFaculty());
+        lines.add("Location: " + camp.getMetaDataManager().getLocation());
         lines.add("Total slot: " + camp.getSlotsManager().getTotalSlotAsString());
         lines.add("Committee slot: " + camp.getSlotsManager().getCommitteeSlotAsString());
 
@@ -402,9 +404,9 @@ public class StaffCampCreatorPage extends User implements CampAttendant, Applica
         List<String> lines = new ArrayList<>();
         lines.add("| Camp Performance Report |");
         lines.add("Name: " + camp.getName());
-        lines.add("Creator: " + camp.getStaffID());
-        lines.add("Visibility: " + ((camp.getVisibility()) ? "T" : "F"));
-        lines.add("Description: " + camp.getDescription());
+        lines.add("Creator: " + camp.getMetaDataManager().getStaffID());
+        lines.add("Visibility: " + ((camp.getMetaDataManager().isVisible()) ? "T" : "F"));
+        lines.add("Description: " + camp.getMetaDataManager().getDescription());
         lines.add("Dates: " +
             CampDatesFormatter.getDateAsString(camp.getDatesManager().getStartDate()) +
             " - " +
@@ -413,8 +415,8 @@ public class StaffCampCreatorPage extends User implements CampAttendant, Applica
         lines.add("Registration deadline: " +
             CampDatesFormatter.getDateAsString(camp.getDatesManager().getRegistrationDeadline())
         );
-        lines.add("Faculty: " + camp.getFaculty());
-        lines.add("Location: " + camp.getLocation());
+        lines.add("Faculty: " + camp.getMetaDataManager().getFaculty());
+        lines.add("Location: " + camp.getMetaDataManager().getLocation());
         lines.add("Total slot: " + camp.getSlotsManager().getTotalSlotAsString());
         lines.add("Committee slot: " + camp.getSlotsManager().getCommitteeSlotAsString());
 
@@ -433,7 +435,7 @@ public class StaffCampCreatorPage extends User implements CampAttendant, Applica
         CampList campList = AppUtil.readCamps();
         CampList visibleCampList = new CampList();
         for (CampManager camp : campList.getSortedCampSet()) {
-            if (camp.getStaffID().equals(getUserID()))
+            if (camp.getMetaDataManager().getStaffID().equals(getUserID()))
                 visibleCampList.putCamp(camp.getName(), camp);
         }
         return visibleCampList;

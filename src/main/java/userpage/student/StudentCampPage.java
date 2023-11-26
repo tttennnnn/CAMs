@@ -3,6 +3,9 @@ package userpage.student;
 import camp.*;
 import camp.chat.EnquiryListManager;
 import camp.dates.CampDatesFormatter;
+import camp.meta.Faculty;
+import camp.meta.Location;
+import camp.meta.MetaDataManager;
 import camp.slots.CampSlotsManager;
 import userpage.ApplicationPage;
 import userpage.ViewerOfCampInfo;
@@ -18,9 +21,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Scanner;
 
-public class StudentCampPage extends User implements ApplicationPage, ViewerOfCampInfo, ViewerOfSomeCamps {
+class StudentCampPage extends User implements ApplicationPage, ViewerOfCampInfo, ViewerOfSomeCamps {
 
-    public StudentCampPage(String userID, String email, String name, Faculty faculty) {
+    StudentCampPage(String userID, String email, String name, Faculty faculty) {
         super(userID, email, name, faculty);
     }
 
@@ -115,7 +118,7 @@ public class StudentCampPage extends User implements ApplicationPage, ViewerOfCa
                     filteredCamps.add(camp);
                     break;
                 case ("location"):
-                    if (camp.getLocation().name().equals(filter))
+                    if (camp.getMetaDataManager().getLocation().name().equals(filter))
                         filteredCamps.add(camp);
                     break;
                 case ("date"):
@@ -133,8 +136,8 @@ public class StudentCampPage extends User implements ApplicationPage, ViewerOfCa
                 camp.getName(),
                 camp.getSlotsManager().getTotalSlotAsString(),
                 camp.getSlotsManager().getCommitteeSlotAsString(),
-                camp.getLocation(),
-                camp.getFaculty(),
+                camp.getMetaDataManager().getLocation(),
+                camp.getMetaDataManager().getFaculty(),
                 camp.getSlotsManager().getUserRole(getUserID())
             );
         }
@@ -159,7 +162,7 @@ public class StudentCampPage extends User implements ApplicationPage, ViewerOfCa
             CampDatesFormatter.getDateAsString(camp.getDatesManager().getStartDate()),
             CampDatesFormatter.getDateAsString(camp.getDatesManager().getEndDate()),
             CampDatesFormatter.getDateAsString(camp.getDatesManager().getRegistrationDeadline()),
-            camp.getDescription()
+            camp.getMetaDataManager().getDescription()
         );
     }
     private void register() throws InvalidUserInputException {
@@ -331,9 +334,10 @@ public class StudentCampPage extends User implements ApplicationPage, ViewerOfCa
         CampList campList = AppUtil.readCamps();
         CampList visibleCampList = new CampList();
         for (CampManager camp : campList.getSortedCampSet()) {
-            if (!camp.getVisibility())
+            MetaDataManager metaData = camp.getMetaDataManager();
+            if (!metaData.isVisible())
                 continue;
-            if (camp.getFaculty() != Faculty.NTU && camp.getFaculty() != getFaculty())
+            if (metaData.getFaculty() != Faculty.NTU && metaData.getFaculty() != getFaculty())
                 continue;
             visibleCampList.putCamp(camp.getName(), camp);
         }
