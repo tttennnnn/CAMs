@@ -36,6 +36,7 @@ resources (./data) and output (./report_by_*) directories must have the followin
 │    │ users.csv
 │    │
 │    └─── camp
+│         │ camps.csv
 │         │ dates.csv
 │         │ enquiries.csv
 │         │ slots.csv
