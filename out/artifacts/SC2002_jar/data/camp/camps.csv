@@ -1,8 +1,0 @@
-"Name","StaffID","Description","Visibility","Faculty","Location"
-"A","Staff1","--,---","T","EEE","LOCATION_A"
-"D","Staff1","-----","T","NTU","LOCATION_B"
-"E","Staff3","-----","F","EEE","LOCATION_C"
-"B","Staff2","-----","T","EEE","LOCATION_D"
-"Q","Staff2","-----","F","EEE","LOCATION_E"
-"T","Staff3","-----","T","NTU","LOCATION_F"
-"Z","Staff1","new","F","SCSE","LOCATION_A"
